@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/perry-mitchell/buttercup-cli#readme",
   "dependencies": {
-    "blessed": "^0.1.81"
+    "blessed": "^0.1.81",
+    "buttercup": "^0.19.0"
   }
 }

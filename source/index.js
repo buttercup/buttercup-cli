@@ -15,9 +15,12 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 screen.title = 'Buttercup';
 
 // Application
+const App = require("./classes/Application.js");
+var app = new App(screen);
 
 const MenuBar = require("./classes/MenuBar.js");
 
 var menu = new MenuBar();
+menu.setApplication(app);
 menu.appendToScreen(screen);
 menu.focus();

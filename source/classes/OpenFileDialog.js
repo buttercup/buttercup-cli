@@ -25,6 +25,10 @@ module.exports = class OpenFileDialog extends Component {
             },
         });
 
+        fileDialog.on("file", (filePath) => {
+            this.application.openArchiveFile(filePath);
+        });
+
         super.init();
     }
 

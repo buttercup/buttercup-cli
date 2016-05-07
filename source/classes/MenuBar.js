@@ -66,6 +66,7 @@ module.exports = class MenuBar extends Component {
 
     openLocal() {
         var openFileDialog = new OpenFileDialog();
+        openFileDialog.setApplication(this.application);
         openFileDialog.appendToScreen();
         openFileDialog.element.refresh();
         openFileDialog.focus();

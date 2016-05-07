@@ -7,6 +7,7 @@ module.exports = class Component {
     constructor() {
         this.element = null;
         this.screen = screen;
+        this.application = null;
 
         this._hasInitialised = false;
     }
@@ -38,6 +39,10 @@ module.exports = class Component {
 
     render() {
         this.screen.render();
+    }
+
+    setApplication(app) {
+        this.application = app;
     }
 
 }
