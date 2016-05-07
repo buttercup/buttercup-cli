@@ -10,6 +10,24 @@ module.exports = class MenuBar extends Component {
         super();
     }
 
+    attachNumberKeys(el) {
+        el.key(['1'], (ch, key) => {
+            if (this.menuBox) {
+                this.closeMenu();
+            } else {
+                this.element.selectTab(parseInt(ch, 10) - 1);
+            }
+        });
+    }
+
+    closeMenu() {
+        if (this.menuBox) {
+            this.menuBox.destroy();
+        }
+        this.menuBox = null;
+        this.render();
+    }
+
     init() {
         let menu = this.element = Blessed.listbar({
             top: '0',
@@ -19,6 +37,8 @@ module.exports = class MenuBar extends Component {
             content: '',
             tags: true,
             mouse: true,
+            keys: true,
+            selectedBg: 'green',
             // border: {
             //     type: 'line'
             // },
@@ -38,26 +58,21 @@ module.exports = class MenuBar extends Component {
             this.toggleButtercupMenu();
         });
 
-        // menu.key('1', (ch, key) => {
-        //     menu.select(0);
-        //     process.exit(0);
-        // });
+        this.attachNumberKeys(menu);
 
         super.init();
     }
 
     toggleButtercupMenu() {
-        if (this.buttercupMenu) {
-            this.buttercupMenu.destroy();
-            this.buttercupMenu = null;
-            this.render();
+        if (this.menuBox) {
+            this.closeMenu();
         } else {
             let items = [
                     "Create new archive",
                     "Open local archive",
                     "Quit"
                 ],
-                menu = this.buttercupMenu = Blessed.list({
+                menu = this.menuBox = Blessed.list({
                     width: 25,
                     height: items.length + 2,
                     top: 1,
@@ -85,6 +100,7 @@ module.exports = class MenuBar extends Component {
                         break;
                 };
             });
+            this.attachNumberKeys(menu);
 
             global.screen.append(menu);
             this.render();

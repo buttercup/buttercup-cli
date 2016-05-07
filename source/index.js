@@ -20,4 +20,4 @@ const MenuBar = require("./classes/MenuBar.js");
 
 var menu = new MenuBar();
 menu.appendToScreen(screen);
-menu.element.focus();
+menu.focus();

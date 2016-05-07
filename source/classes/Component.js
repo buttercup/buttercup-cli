@@ -6,6 +6,7 @@ module.exports = class Component {
 
     constructor() {
         this.element = null;
+        this.screen = screen;
 
         this._hasInitialised = false;
     }
@@ -23,7 +24,11 @@ module.exports = class Component {
             this.init();
         }
         scr.append(this.element);
-        screen.render();
+        this.render();
+    }
+
+    focus() {
+        this.element.focus();
     }
 
     init() {
@@ -31,7 +36,7 @@ module.exports = class Component {
     }
 
     render() {
-        screen.render();
+        this.screen.render();
     }
 
 }
