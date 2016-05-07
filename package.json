@@ -1,0 +1,29 @@
+{
+  "name": "buttercup-cli",
+  "version": "0.1.1",
+  "description": "Buttercup command line application",
+  "main": "source/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/perry-mitchell/buttercup-cli.git"
+  },
+  "keywords": [
+    "buttercup",
+    "password",
+    "manager",
+    "security",
+    "credentials"
+  ],
+  "author": "Perry Mitchell <perry@perrymitchell.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/perry-mitchell/buttercup-cli/issues"
+  },
+  "homepage": "https://github.com/perry-mitchell/buttercup-cli#readme",
+  "dependencies": {
+    "blessed": "^0.1.81"
+  }
+}
