@@ -3,6 +3,7 @@
 const Blessed = require("blessed");
 
 const Component = require("./Component.js");
+const OpenFileDialog = require("./OpenFileDialog.js");
 
 module.exports = class MenuBar extends Component {
 
@@ -63,6 +64,13 @@ module.exports = class MenuBar extends Component {
         super.init();
     }
 
+    openLocal() {
+        var openFileDialog = new OpenFileDialog();
+        openFileDialog.appendToScreen();
+        openFileDialog.element.refresh();
+        openFileDialog.focus();
+    }
+
     toggleButtercupMenu() {
         if (this.menuBox) {
             this.closeMenu();
@@ -89,14 +97,15 @@ module.exports = class MenuBar extends Component {
             menu.on("select", (item) => {
                 let title = item.getText();
                 switch(title) {
+                    case "Open local archive":
+                        this.openLocal();
+                        break;
                     case "Quit":
                         process.exit(0);
                         break;
                     default:
                         // nothing
-                        setTimeout(() => {
-                            this.toggleButtercupMenu();
-                        }, 50);
+                        this.closeMenu();
                         break;
                 };
             });

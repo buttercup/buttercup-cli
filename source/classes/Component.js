@@ -23,6 +23,7 @@ module.exports = class Component {
         if (!this._hasInitialised) {
             this.init();
         }
+        scr = scr || this.screen;
         scr.append(this.element);
         this.render();
     }
