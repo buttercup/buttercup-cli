@@ -3,6 +3,8 @@
 const Buttercup = require("buttercup");
 const FileDatasource = Buttercup.FileDatasource;
 
+const PasswordPrompt = require("./PasswordPrompt.js");
+
 module.exports = class Application {
 
     constructor(scr) {
@@ -12,12 +14,27 @@ module.exports = class Application {
         this.archive = null;
     }
 
-    openArchive(archive) {
+    getPassword() {
+        let pp = new PasswordPrompt();
+        pp.appendToScreen();
+        return pp.getPassword()
+            .then((pass) => {
+                pp.destroy();
+                return pass;
+            });
+    }
 
+    openArchive(archive) {
+        console.log(archive);
     }
 
     openArchiveFile(filename) {
         var fds = new FileDatasource(filename);
+        this.getPassword()
+            .then((password) => fds.load(password))
+            .then((archive) => {
+                this.openArchive(archive);
+            });
     }
 
 };

@@ -26,6 +26,7 @@ module.exports = class OpenFileDialog extends Component {
         });
 
         fileDialog.on("file", (filePath) => {
+            this.element.hide();
             this.application.openArchiveFile(filePath);
         });
 

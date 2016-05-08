@@ -10,6 +10,7 @@ module.exports = class Component {
         this.application = null;
 
         this._hasInitialised = false;
+        this._appendCBs = [];
     }
 
     appendToElement(node) {
@@ -26,6 +27,16 @@ module.exports = class Component {
         }
         scr = scr || this.screen;
         scr.append(this.element);
+        this._appendCBs.forEach((cb) => {
+            (cb)();
+        });
+        this.render();
+    }
+
+    destroy() {
+        if (this.element) {
+            this.element.destroy();
+        }
         this.render();
     }
 
@@ -43,6 +54,12 @@ module.exports = class Component {
 
     setApplication(app) {
         this.application = app;
+    }
+
+    waitForAppend() {
+        return new Promise((resolve) => {
+            this._appendCBs.push(resolve);
+        });
     }
 
 }
