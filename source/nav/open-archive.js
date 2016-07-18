@@ -1,4 +1,7 @@
+const { Workspace, FileDatasource } = require("buttercup");
+
 const menu = require("../tools/menu.js");
+const createArchiveHandler = require("./archive.js");
 
 const AUTH_METHODS = [
     { title: "Password only",                   value: "password" },
@@ -7,7 +10,19 @@ const AUTH_METHODS = [
 ];
 
 function openArchiveFile(filePath, auth) {
-
+    let workspace = new Workspace(),
+        datasource = new FileDatasource(filePath);
+    // @todo file reading
+    return datasource
+        .load(auth.password)
+        .then(function(archive) {
+            workspace
+                .setDatasource(datasource)
+                .setArchive(archive)
+                .setPassword(auth.password);
+            let handler = createArchiveHandler(workspace);
+            return handler.begin();
+        });
 }
 
 let openArchive = module.exports = {
@@ -19,7 +34,8 @@ let openArchive = module.exports = {
                     return menu
                         .presentPasswordPrompt()
                         .then(function(pass) {
-                            info.pass = pass;
+                            info.password = pass;
+                            return info;
                         });
                 }
                 return info;

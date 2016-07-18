@@ -5,7 +5,7 @@ const textPrompt = require("text-prompt");
 module.exports = {
 
     presentPasswordPrompt: function(text = "Password:") {
-        process.stdout.write(text);
+        process.stdout.write(`${text} `);
         return new Promise(function(resolve) {
             passwordPrompt(function(password) {
                 resolve(password);
@@ -21,9 +21,9 @@ module.exports = {
         });
     },
 
-    presentSelectMenu: function(title, menuItems) {
+    presentSelectMenu: function(title, menuItems, initialIndex = 0) {
         return new Promise(function(resolve, reject) {
-            selectPrompt(title, menuItems, { cursor: 0 })
+            selectPrompt(title, menuItems, { cursor: initialIndex })
                 .on("abort", (e) => reject(e))
                 .on("submit", (v) => resolve(v));
         });
