@@ -4,7 +4,7 @@
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "xo"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,38 @@
     "pw": "0.0.4",
     "select-prompt": "^0.2.0",
     "text-prompt": "^0.1.0"
+  },
+  "devDependencies": {
+    "xo": "^0.16.0"
+  },
+  "xo": {
+    "esnext": true,
+    "semicolon": true,
+    "space": 4,
+    "envs": [
+      "node"
+    ],
+    "rules": {
+      "babel/arrow-parens": "off",
+      "babel/object-curly-spacing": [
+        "error",
+        "always"
+      ],
+      "babel/object-shorthand": "off",
+      "no-multi-spaces": "off",
+      "no-var": "off",
+      "one-var": "off",
+      "prefer-arrow-callback": "off",
+      "prefer-const": "off",
+      "quotes": [
+        "error",
+        "double",
+        {
+          "allowTemplateLiterals": true
+        }
+      ],
+      "space-before-function-paren": "off",
+      "xo/no-process-exit": "off"
+    }
   }
 }
