@@ -25,9 +25,9 @@
   "homepage": "https://github.com/perry-mitchell/buttercup-cli#readme",
   "dependencies": {
     "buttercup": "~0.20.1",
+    "inquirer": "^1.1.2",
     "pw": "0.0.4",
-    "select-prompt": "^0.2.0",
-    "text-prompt": "^0.1.0"
+    "read": "^1.0.7",
   },
   "devDependencies": {
     "xo": "^0.16.0"

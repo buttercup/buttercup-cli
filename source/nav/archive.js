@@ -1,9 +1,7 @@
 const menu = require("../tools/menu.js");
 
-const ARCHIVE_BACK = { title: "Back", value: "+back" };
-const ARCHIVE_BASE = [
-    { title: "Close archive",                   value: "+close" }
-];
+const ARCHIVE_BACK =    { title: "Back", value: "+back" };
+const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 
 module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
@@ -30,12 +28,11 @@ module.exports = function initWithWorkspace(workspace) {
         },
 
         presentCurrentNode: function() {
-            let menuItems = [].concat(ARCHIVE_BASE),
-                groups = currentNode.getGroups(),
-                index = 0;
+            let menuItems = [],
+                groups = currentNode.getGroups();
             if (currentNode !== archive) {
                 menuItems.push(ARCHIVE_BACK);
-                index = 1;
+                menuItems.push(ARCHIVE_TOROOT);
             }
             groups.forEach(function(group) {
                 menuItems.push({
@@ -43,9 +40,8 @@ module.exports = function initWithWorkspace(workspace) {
                     value: `g:${group.getID()}`
                 });
             });
-            console.log("DDDD", menuItems, index);
             return menu
-                .presentSelectMenu("Archive action", menuItems, index)
+                .presentSelectMenu("Archive action", menuItems)
                 .then((action) => archiveHandler.handleMenuAction(action));
         }
     };
