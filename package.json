@@ -28,6 +28,7 @@
     "inquirer": "^1.1.2",
     "pw": "0.0.4",
     "read": "^1.0.7",
+    "tuck": "0.0.4"
   },
   "devDependencies": {
     "xo": "^0.16.0"
