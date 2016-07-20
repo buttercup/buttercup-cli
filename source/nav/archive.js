@@ -1,23 +1,24 @@
 const tuck = require("tuck");
 const menu = require("../tools/menu.js");
+const entryHandler = require("./entry.js");
 
 const ARCHIVE_BACK =    { title: "Back", value: "+back" };
 const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 
-function renderEntry(entry) {
-    console.log(tuck(
-        [
-            entry.getProperty("title"),
-            "───",
-            `Username:   ${entry.getProperty("username")}`,
-            "Password:   ********"
-        ], {
-            center: false,
-            textCenter: false
-        }
-    ));
-}
+// function renderEntry(entry) {
+//     console.log(tuck(
+//         [
+//             entry.getProperty("title"),
+//             "───",
+//             `Username:   ${entry.getProperty("username")}`,
+//             "Password:   ********"
+//         ], {
+//             center: false,
+//             textCenter: false
+//         }
+//     ));
+// }
 
 module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
@@ -43,7 +44,10 @@ module.exports = function initWithWorkspace(workspace) {
                     currentNode = archive.getGroupByID(id);
                 } else if (context === "e") {
                     let entry = archive.getEntryByID(id);
-                    renderEntry(entry);
+                    entryHandler.renderEntry(entry);
+                    return entryHandler
+                        .handleEntry(entry)
+                        .then(() => archiveHandler.presentCurrentNode());
                 }
             }
             return archiveHandler.presentCurrentNode();
