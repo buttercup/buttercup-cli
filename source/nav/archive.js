@@ -1,24 +1,11 @@
-const tuck = require("tuck");
 const menu = require("../tools/menu.js");
 const entryHandler = require("./entry.js");
+const groupHandler = require("./group.js");
 
 const ARCHIVE_BACK =    { title: "Back", value: "+back" };
 const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
-
-// function renderEntry(entry) {
-//     console.log(tuck(
-//         [
-//             entry.getProperty("title"),
-//             "───",
-//             `Username:   ${entry.getProperty("username")}`,
-//             "Password:   ********"
-//         ], {
-//             center: false,
-//             textCenter: false
-//         }
-//     ));
-// }
+const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
 
 module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
@@ -37,6 +24,10 @@ module.exports = function initWithWorkspace(workspace) {
             } else if (action === "+root") {
                 currentNode = archive;
                 nodeChain = [];
+            } else if (action === "+newentry") {
+                return groupHandler
+                    .createEntry(currentNode)
+                    .then(() => archiveHandler.presentCurrentNode());
             } else {
                 let [context, id] = action.split(":");
                 if (context === "g") {
@@ -63,6 +54,7 @@ module.exports = function initWithWorkspace(workspace) {
             } else {
                 menuItems.push(ARCHIVE_BACK);
                 menuItems.push(ARCHIVE_TOROOT);
+                menuItems.push(CREATE_ENTRY);
             }
             groups.forEach(function(group) {
                 menuItems.push({

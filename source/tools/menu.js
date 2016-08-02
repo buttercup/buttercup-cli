@@ -2,7 +2,7 @@ const passwordPrompt = require("pw");
 const read = require("read");
 const inquirer = require("inquirer");
 
-module.exports = {
+let menu = module.exports = {
 
     presentPasswordPrompt: function(text = "Password") {
         process.stdout.write(`${text}: `);
@@ -25,6 +25,26 @@ module.exports = {
                 }
             });
         });
+    },
+
+    presentPrompts: function(items, results) {
+        results = results || {};
+        let nextItem = items.shift();
+        if (nextItem) {
+            let itemTest = nextItem.test || /.+/;
+            return menu
+                .presentPrompt(nextItem.title)
+                .then(function(result) {
+                    if (itemTest.test(result)) {
+                        results[nextItem.key] = result;
+                    } else {
+                        console.warn(`Invalid value for ${nextItem.title}, please try again:`);
+                        items.unshift(nextItem);
+                    }
+                    return menu.presentPrompts(items, results);
+                });
+        }
+        return Promise.resolve(results);
     },
 
     presentSelectMenu: function(title, menuItems) {
