@@ -2,7 +2,17 @@ const passwordPrompt = require("pw");
 const read = require("read");
 const inquirer = require("inquirer");
 
+const CONFIRM_NO =    { title: "No", value: false };
+const CONFIRM_YES =   { title: "Yes", value: true };
+
 let menu = module.exports = {
+
+    presentConfirmOption: function(title) {
+        return menu.presentSelectMenu(title || "Confirm", [
+            CONFIRM_YES,
+            CONFIRM_NO
+        ]);
+    },
 
     presentPasswordPrompt: function(text = "Password") {
         process.stdout.write(`${text}: `);
