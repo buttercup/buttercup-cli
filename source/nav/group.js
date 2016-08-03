@@ -1,7 +1,7 @@
 const menu = require("../tools/menu.js");
 const entryHandler = require("./entry.js");
 
-let groupHandler = module.exports = {
+module.exports = {
 
     createEntry: function(group) {
         return menu
@@ -28,6 +28,14 @@ let groupHandler = module.exports = {
                     .setProperty("username", results.username)
                     .setProperty("password", results.password);
                 return entryHandler.renderEntry(entry);
+            });
+    },
+
+    createGroup: function(node) {
+        return menu
+            .presentPrompt("Title")
+            .then(function(title) {
+                return node.createGroup(title);
             });
     }
 

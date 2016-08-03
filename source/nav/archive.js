@@ -6,6 +6,7 @@ const ARCHIVE_BACK =    { title: "Back", value: "+back" };
 const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
+const CREATE_GROUP =    { title: "Create group", value: "+newgroup" };
 
 module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
@@ -27,6 +28,10 @@ module.exports = function initWithWorkspace(workspace) {
             } else if (action === "+newentry") {
                 return groupHandler
                     .createEntry(currentNode)
+                    .then(() => archiveHandler.presentCurrentNode());
+            } else if (action === "+newgroup") {
+                return groupHandler
+                    .createGroup(currentNode) // returns group
                     .then(() => archiveHandler.presentCurrentNode());
             } else {
                 let [context, id] = action.split(":");
@@ -51,9 +56,11 @@ module.exports = function initWithWorkspace(workspace) {
                 entries = isRoot ? [] : currentNode.getEntries();
             if (isRoot) {
                 menuItems.push(ARCHIVE_CLOSE);
+                menuItems.push(CREATE_GROUP);
             } else {
                 menuItems.push(ARCHIVE_BACK);
                 menuItems.push(ARCHIVE_TOROOT);
+                menuItems.push(CREATE_GROUP);
                 menuItems.push(CREATE_ENTRY);
             }
             groups.forEach(function(group) {
