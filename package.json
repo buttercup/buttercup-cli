@@ -3,6 +3,9 @@
   "version": "0.2.0",
   "description": "Buttercup command line application",
   "main": "source/index.js",
+  "bin": {
+    "bcup": "./source/index.js"
+  },
   "scripts": {
     "test": "xo"
   },
