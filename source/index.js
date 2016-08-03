@@ -1,26 +1,22 @@
 "use strict";
 
-const Blessed = require("blessed");
+const mainMenu = require("./nav/main-menu.js");
 
-// Core init
-// Create a screen object.
-var screen = global.screen = Blessed.screen({
-    smartCSR: true
+process.on('uncaughtException', function (err) {
+  console.log('Caught exception: ' + err);
+});
+process.on("exit", function() {
+    console.log("exit", arguments);
 });
 
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-    return process.exit(0);
-});
-
-screen.title = 'Buttercup';
-
-// Application
-const App = require("./classes/Application.js");
-var app = new App(screen);
-
-const MenuBar = require("./classes/MenuBar.js");
-
-var menu = new MenuBar();
-menu.setApplication(app);
-menu.appendToScreen(screen);
-menu.focus();
+return mainMenu
+    .presentMenu()
+    .then(function() {
+        console.log("Ending");
+    })
+    .catch(function(err) {
+        console.error("Process failed");
+        setTimeout(function() {
+            throw err;
+        }, 0);
+    });
