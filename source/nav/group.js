@@ -37,6 +37,19 @@ module.exports = {
             .then(function(title) {
                 return node.createGroup(title);
             });
+    },
+
+    deleteGroup: function(group) {
+        return menu
+            .presentConfirmOption("Confirm delete")
+            .then(function(shouldDelete) {
+                if (shouldDelete) {
+                    let title = group.getTitle();
+                    group.delete();
+                    console.log(`Deleted group '${title}'`);
+                }
+                return shouldDelete;
+            });
     }
 
 };

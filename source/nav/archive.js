@@ -7,8 +7,9 @@ const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
 const CREATE_GROUP =    { title: "Create group", value: "+newgroup" };
+const DELETE_GROUP =    { title: "Delete group", value: "+deletegroup" };
 
-module.exports = function initWithWorkspace(workspace) {
+let archiveHandler = module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
         currentNode = archive,
         nodeChain = [];
@@ -33,6 +34,14 @@ module.exports = function initWithWorkspace(workspace) {
                 return groupHandler
                     .createGroup(currentNode) // returns group
                     .then(() => archiveHandler.presentCurrentNode());
+            } else if (action === "+deletegroup") {
+                return groupHandler
+                    .deleteGroup(currentNode)
+                    .then(function(deleted) {
+                        return deleted ?
+                            archiveHandler.handleMenuAction("+back") :
+                            archiveHandler.presentCurrentNode();
+                    });
             } else {
                 let [context, id] = action.split(":");
                 if (context === "g") {
@@ -60,6 +69,7 @@ module.exports = function initWithWorkspace(workspace) {
             } else {
                 menuItems.push(ARCHIVE_BACK);
                 menuItems.push(ARCHIVE_TOROOT);
+                menuItems.push(DELETE_GROUP);
                 menuItems.push(CREATE_GROUP);
                 menuItems.push(CREATE_ENTRY);
             }
