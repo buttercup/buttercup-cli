@@ -19,6 +19,7 @@ module.exports = {
                 {
                     key: "password",
                     title: "Password",
+                    type: "password",
                     test: /.*/
                 }
             ])

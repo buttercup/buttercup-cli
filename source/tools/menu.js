@@ -41,9 +41,12 @@ let menu = module.exports = {
         results = results || {};
         let nextItem = items.shift();
         if (nextItem) {
-            let itemTest = nextItem.test || /.+/;
-            return menu
-                .presentPrompt(nextItem.title)
+            let itemTest = nextItem.test || /.+/,
+                promptMethod = menu.presentPrompt;
+            if (nextItem.type === "password") {
+                promptMethod = menu.presentPasswordPrompt;
+            }
+            return promptMethod(nextItem.title)
                 .then(function(result) {
                     if (itemTest.test(result)) {
                         results[nextItem.key] = result;
