@@ -20,8 +20,8 @@ function openArchiveFile(filePath, auth) {
                 .setDatasource(datasource)
                 .setArchive(archive)
                 .setPassword(auth.password);
-            let handler = createArchiveHandler(workspace);
-            return handler.begin();
+            let archiveHandler = createArchiveHandler(workspace);
+            return archiveHandler.begin();
         });
 }
 

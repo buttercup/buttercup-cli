@@ -1,3 +1,5 @@
+const chalk = require("chalk");
+
 const menu = require("../tools/menu.js");
 const entryHandler = require("./entry.js");
 const groupHandler = require("./group.js");
@@ -9,7 +11,24 @@ const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
 const CREATE_GROUP =    { title: "Create group", value: "+newgroup" };
 const DELETE_GROUP =    { title: "Delete group", value: "+deletegroup" };
 
-let archiveHandler = module.exports = function initWithWorkspace(workspace) {
+function getNodeTitleForBreadcrumbs(node, end = false) {
+    let title = node.getTitle ? node.getTitle() : "(Root)";
+    if (end) {
+        return chalk.underline(title);
+    }
+    return chalk.gray(title);
+}
+
+function logBreadcrumbs(chain, current) {
+    let breadCrumbs = " • ";
+    breadCrumbs += chain
+        .map(getNodeTitleForBreadcrumbs)
+        .concat(getNodeTitleForBreadcrumbs(current, true))
+        .join(" / ");
+    console.log(breadCrumbs);
+}
+
+module.exports = function initWithWorkspace(workspace) {
     let archive = workspace.getArchive(),
         currentNode = archive,
         nodeChain = [];
@@ -59,6 +78,7 @@ let archiveHandler = module.exports = function initWithWorkspace(workspace) {
         },
 
         presentCurrentNode: function() {
+            logBreadcrumbs(nodeChain, currentNode);
             let menuItems = [],
                 isRoot = currentNode === archive,
                 groups = currentNode.getGroups(),
