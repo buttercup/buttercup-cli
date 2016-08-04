@@ -6,8 +6,11 @@ const argv = require("minimist")(process.argv.slice(2));
 
 const openArchiveHandler = require("./nav/open-archive.js");
 const mainMenu = require("./nav/main-menu.js");
+const getTitle = require("./resources/title.js");
 
 let archiveFilename = argv._[0];
+
+console.log(getTitle());
 
 if (archiveFilename) {
     return openArchiveHandler
