@@ -6,6 +6,7 @@ const groupHandler = require("./group.js");
 
 const ARCHIVE_BACK =    { title: "Back", value: "+back" };
 const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
+const ARCHIVE_SAVE =    { title: "Save", value: "+save" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
 const CREATE_GROUP =    { title: "Create group", value: "+newgroup" };
@@ -61,6 +62,10 @@ module.exports = function initWithWorkspace(workspace) {
                             archiveHandler.handleMenuAction("+back") :
                             archiveHandler.presentCurrentNode();
                     });
+            } else if (action === "+save") {
+                return archiveHandler
+                    .saveArchive()
+                    .then(() => archiveHandler.presentCurrentNode());
             } else {
                 let [context, id] = action.split(":");
                 if (context === "g") {
@@ -85,10 +90,12 @@ module.exports = function initWithWorkspace(workspace) {
                 entries = isRoot ? [] : currentNode.getEntries();
             if (isRoot) {
                 menuItems.push(ARCHIVE_CLOSE);
+                menuItems.push(ARCHIVE_SAVE);
                 menuItems.push(CREATE_GROUP);
             } else {
                 menuItems.push(ARCHIVE_BACK);
                 menuItems.push(ARCHIVE_TOROOT);
+                menuItems.push(ARCHIVE_SAVE);
                 menuItems.push(DELETE_GROUP);
                 menuItems.push(CREATE_GROUP);
                 menuItems.push(CREATE_ENTRY);
@@ -108,7 +115,22 @@ module.exports = function initWithWorkspace(workspace) {
             return menu
                 .presentSelectMenu("Archive action", menuItems)
                 .then((action) => archiveHandler.handleMenuAction(action));
+        },
+
+        saveArchive: function() {
+            return menu
+                .presentConfirmOption("Confirm save")
+                .then(function(shouldSave) {
+                    if (shouldSave) {
+                        return workspace
+                            .save()
+                            .then(function() {
+                                console.log("Saved archive");
+                            });
+                    }
+                });
         }
+
     };
     return archiveHandler;
 };
