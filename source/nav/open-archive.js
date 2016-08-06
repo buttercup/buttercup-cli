@@ -1,4 +1,4 @@
-const { Workspace, FileDatasource } = require("buttercup");
+const { Workspace, FileDatasource, Archive } = require("buttercup");
 
 const menu = require("../tools/menu.js");
 const createArchiveHandler = require("./archive.js");
@@ -9,23 +9,40 @@ const AUTH_METHODS = [
     { title: "Password and Key-file",           value: "password,keyfile" }
 ];
 
-function openArchiveFile(filePath, auth) {
+function openArchiveFile(filePath, auth, newArchive = false) {
     let workspace = new Workspace(),
         datasource = new FileDatasource(filePath);
-    // @todo file reading
+    workspace
+        .setDatasource(datasource)
+        .setPassword(auth.password);
+    if (newArchive) {
+        return workspace
+            .setArchive(new Archive())
+            .save()
+            .then(function() {
+                let archiveHandler = createArchiveHandler(workspace);
+                return archiveHandler.begin();
+            });
+    }
     return datasource
         .load(auth.password)
         .then(function(archive) {
-            workspace
-                .setDatasource(datasource)
-                .setArchive(archive)
-                .setPassword(auth.password);
+            workspace.setArchive(archive);
             let archiveHandler = createArchiveHandler(workspace);
             return archiveHandler.begin();
         });
 }
 
 let openArchive = module.exports = {
+
+    createArchiveWithFilename: function(filename) {
+        return openArchive
+            .selectOpenMethods()
+            .then(openArchive.getRequiredAuthenticationInfo)
+            .then(function(authInfo) {
+                return openArchiveFile(filename, authInfo, true);
+            });
+    },
 
     getRequiredAuthenticationInfo: function(authMethods) {
         return Promise.resolve({})

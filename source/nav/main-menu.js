@@ -9,6 +9,13 @@ const MAIN_MENU = [
 
 let mainMenu = module.exports = {
 
+    createArchive: function() {
+        // @todo handle multiple archive formats
+        return menu
+            .presentPrompt("New archive filename")
+            .then(openArchive.createArchiveWithFilename);
+    },
+
     openArchive: function() {
         return menu
             .presentPrompt("Filename")
@@ -24,6 +31,8 @@ let mainMenu = module.exports = {
                     process.exit(0);
                 } else if (action === "open") {
                     return mainMenu.openArchive();
+                } else if (action === "create") {
+                    return mainMenu.createArchive();
                 }
             });
     }
