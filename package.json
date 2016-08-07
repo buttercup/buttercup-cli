@@ -1,6 +1,6 @@
 {
   "name": "buttercup-cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "bin": {
