@@ -1,7 +1,10 @@
-const { Workspace, FileDatasource, Archive } = require("buttercup");
+const { Workspace, FileDatasource, Archive, Credentials } = require("buttercup");
 
 const menu = require("../tools/menu.js");
+const createRecentTools = require("../tools/recents.js");
 const createArchiveHandler = require("./archive.js");
+
+const recentsTools = createRecentTools(global.config);
 
 const AUTH_METHODS = [
     { title: "Password only",                   value: "password" },
@@ -20,6 +23,9 @@ function openArchiveFile(filePath, auth, newArchive = false) {
             .setArchive(new Archive())
             .save()
             .then(function() {
+                return saveRecent(`File: ${filePath}`, datasource, new Credentials(), auth.password);
+            })
+            .then(function() {
                 let archiveHandler = createArchiveHandler(workspace);
                 return archiveHandler.begin();
             });
@@ -27,10 +33,18 @@ function openArchiveFile(filePath, auth, newArchive = false) {
     return datasource
         .load(auth.password)
         .then(function(archive) {
+            return saveRecent(`File: ${filePath}`, datasource, new Credentials(), auth.password)
+                .then(() => archive);
+        })
+        .then(function(archive) {
             workspace.setArchive(archive);
             let archiveHandler = createArchiveHandler(workspace);
             return archiveHandler.begin();
         });
+}
+
+function saveRecent(name, datasource, credentials, masterPass) {
+    return recentsTools.addRecent(name, datasource, credentials.convertToSecureContent(masterPass));
 }
 
 let openArchive = module.exports = {
