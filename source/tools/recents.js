@@ -1,3 +1,7 @@
+const { Credentials, Workspace, tools } = require("buttercup");
+
+const datasourceTools = tools.datasource;
+
 module.exports = function preprareRecentsTools(config) {
     return {
 
@@ -30,6 +34,24 @@ module.exports = function preprareRecentsTools(config) {
 
         getRecents: function() {
             return config.get("recents", []);
+        },
+
+        loadWorkspaceFromRecent: function(recent, masterPass) {
+            return Credentials
+                .createFromSecureContent(recent.creds, masterPass)
+                .then(function(credentials) {
+                    let datasource = datasourceTools.stringToDatasource(recent.ds, credentials);
+                    return datasource
+                        .load(masterPass)
+                        .then(function(archive) {
+                            let workspace = new Workspace();
+                            workspace
+                                .setPassword(masterPass)
+                                .setArchive(archive)
+                                .setDatasource(datasource);
+                            return workspace;
+                        });
+                });
         }
 
     };

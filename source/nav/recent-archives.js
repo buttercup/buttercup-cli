@@ -1,5 +1,7 @@
 const menu = require("../tools/menu.js");
 const createRecentTools = require("../tools/recents.js");
+const authMenu = require("./auth.js");
+const initWithWorkspace = require("./archive.js");
 
 const recentsTools = createRecentTools(global.config);
 
@@ -25,7 +27,14 @@ let recentArchiveHandler = module.exports = {
     },
 
     loadFromRecent: function(recent) {
-        return Promise.resolve();
+        return authMenu
+            .selectAuthMethods()
+            .then(authMenu.getRequiredAuthenticationInfo)
+            .then((authInfo) => recentsTools.loadWorkspaceFromRecent(recent, authInfo.password))
+            .then(function(workspace) {
+                let handler = initWithWorkspace(workspace);
+                return handler.begin();
+            });
     },
 
     presentRecentArchivesMenu: function() {
