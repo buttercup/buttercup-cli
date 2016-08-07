@@ -1,8 +1,10 @@
 const menu = require("../tools/menu.js");
 const openArchive = require("./open-archive.js");
+const recentArchives = require("./recent-archives.js");
 
 const MAIN_MENU = [
     { title: "Create new archive",              value: "create" },
+    { title: "Open recent",                     value: "openrecent" },
     { title: "Open existing archive",           value: "open" },
     { title: "Exit",                            value: "exit" }
 ];
@@ -33,6 +35,8 @@ let mainMenu = module.exports = {
                     return mainMenu.openArchive();
                 } else if (action === "create") {
                     return mainMenu.createArchive();
+                } else if (action === "openrecent") {
+                    return recentArchives.presentRecentArchivesMenu();
                 }
             });
     }
