@@ -1,12 +1,14 @@
 const chalk = require("chalk");
 
 const menu = require("../tools/menu.js");
+const exportTools = require("../tools/export.js");
 const entryHandler = require("./entry.js");
 const groupHandler = require("./group.js");
 
 const ARCHIVE_BACK =    { title: "Back", value: "+back" };
 const ARCHIVE_CLOSE =   { title: "Close", value: "+close" };
 const ARCHIVE_SAVE =    { title: "Save", value: "+save" };
+const ARCHIVE_EXPORT =  { title: "Export", value: "+export" };
 const ARCHIVE_TOROOT =  { title: "Root", value: "+root" };
 const CREATE_ENTRY =    { title: "Create entry", value: "+newentry" };
 const CREATE_GROUP =    { title: "Create group", value: "+newgroup" };
@@ -38,6 +40,29 @@ module.exports = function initWithWorkspace(workspace) {
             return archiveHandler.presentCurrentNode();
         },
 
+        exportArchive: function() {
+            return menu
+                .presentSelectMenu("Export options", [
+                    { title: "Back",                value: "+back" },
+                    { title: "Export as JSON",      value: "json" }
+                ])
+                .then(function(exportAction) {
+                    if (exportAction === "json") {
+                        console.log(chalk.yellow.underline("Warning:"),
+                            "Exporting to JSON will expose passwords and secure content!");
+                        return menu
+                            .presentPrompt("Output filename")
+                            .then(function(filename) {
+                                exportTools.exportToJSONFile(archive, filename);
+                                console.log("Exported archive");
+                            })
+                            .catch(function(err) {
+                                console.error(`Failed exporting archive: ${err.message}`);
+                            });
+                    }
+                });
+        },
+
         handleMenuAction: function(action) {
             if (action === "+close") {
                 return;
@@ -66,6 +91,10 @@ module.exports = function initWithWorkspace(workspace) {
                 return archiveHandler
                     .saveArchive()
                     .then(() => archiveHandler.presentCurrentNode());
+            } else if (action === "+export") {
+                return archiveHandler
+                    .exportArchive()
+                    .then(() => archiveHandler.presentCurrentNode());
             } else {
                 let [context, id] = action.split(":");
                 if (context === "g") {
@@ -91,11 +120,11 @@ module.exports = function initWithWorkspace(workspace) {
             if (isRoot) {
                 menuItems.push(ARCHIVE_CLOSE);
                 menuItems.push(ARCHIVE_SAVE);
+                menuItems.push(ARCHIVE_EXPORT);
                 menuItems.push(CREATE_GROUP);
             } else {
                 menuItems.push(ARCHIVE_BACK);
                 menuItems.push(ARCHIVE_TOROOT);
-                menuItems.push(ARCHIVE_SAVE);
                 menuItems.push(DELETE_GROUP);
                 menuItems.push(CREATE_GROUP);
                 menuItems.push(CREATE_ENTRY);
