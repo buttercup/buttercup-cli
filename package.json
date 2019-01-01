@@ -4,10 +4,10 @@
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "bin": {
-    "bcup": "./source/index.js"
+    "bcup": "./src/bcup.js"
   },
   "scripts": {
-    "test": "xo"
+    "test": "echo test"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "security",
     "credentials"
   ],
-  "author": "Perry Mitchell <perry@perrymitchell.net>",
+  "author": "Jeff Willette <jrwillette88@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/perry-mitchell/buttercup-cli/issues"
@@ -30,46 +30,13 @@
     "buttercup": "~0.21.0",
     "buttercup-native-bindings": "~0.2.1",
     "chalk": "^1.1.3",
+    "commander": "^2.19.0",
     "copy-paste": "^1.3.0",
     "expand-home-dir": "0.0.3",
     "inquirer": "^1.1.2",
-    "minimist": "^1.2.0",
-    "pw": "0.0.4",
-    "read": "^1.0.7",
-    "tuck": "0.0.4"
+    "pw": "0.0.4"
   },
   "devDependencies": {
-    "xo": "^0.16.0"
-  },
-  "xo": {
-    "esnext": true,
-    "semicolon": true,
-    "space": 4,
-    "envs": [
-      "node"
-    ],
-    "rules": {
-      "babel/arrow-parens": "off",
-      "babel/object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "babel/object-shorthand": "off",
-      "no-multi-spaces": "off",
-      "no-var": "off",
-      "one-var": "off",
-      "prefer-arrow-callback": "off",
-      "prefer-const": "off",
-      "quotes": [
-        "error",
-        "double",
-        {
-          "allowTemplateLiterals": true
-        }
-      ],
-      "space-before-function-paren": "off",
-      "xo/no-abusive-eslint-disable": "off",
-      "xo/no-process-exit": "off"
-    }
+    "prettier": "^1.15.3"
   }
 }
