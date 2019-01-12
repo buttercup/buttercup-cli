@@ -2,7 +2,7 @@
 
 var program = require("commander");
 
-var fs = require("fs");
+var _fs = require("fs");
 var os = require("os");
 
 var { log } = require("./utils");
@@ -23,7 +23,7 @@ const defaultConfig = {
 };
 
 // look for an existing config file and create a new one if it doesn't exist
-const initConfig = () => {
+const initConfig = fs => {
   if (fs.existsSync(configPath)) {
     log(`existing config file found at ${configPath}`);
     return;
@@ -34,4 +34,11 @@ const initConfig = () => {
   );
 };
 
-initConfig();
+if (require.main === module) {
+  initConfig(_fs);
+}
+
+module.exports = {
+  defaultConfig,
+  initConfig
+};

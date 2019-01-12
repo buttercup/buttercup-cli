@@ -7,7 +7,7 @@
     "bcup": "./src/bcup.js"
   },
   "scripts": {
-    "test": "echo test"
+    "test": "ava"
   },
   "repository": {
     "type": "git",
@@ -37,6 +37,8 @@
     "pw": "0.0.4"
   },
   "devDependencies": {
-    "prettier": "^1.15.3"
+    "ava": "^1.0.1",
+    "prettier": "^1.15.3",
+    "sinon": "^7.2.2"
   }
 }
