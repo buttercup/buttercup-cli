@@ -2,6 +2,10 @@
 
 var program = require("commander");
 
+var { defaultConfigPath } = require("./utils");
+
+program.configPath = defaultConfigPath;
+
 program
   .version("0.0.1", "-v, --version")
   .option("-c --config [file]", "Use a specific config file");

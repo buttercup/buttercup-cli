@@ -1,4 +1,6 @@
-const log = msg => console.log(msg);
+var os = require("os");
+
+const log = msg => console.log(msg); // eslint-disable-line
 
 // returns whether object key value is of the expected type.
 const validateObjectKeyType = (obj, k, t) => typeof obj[k] === t;
@@ -20,6 +22,8 @@ const objHasKeys = (obj, keys) => {
 
   return true;
 };
+
+const defaultConfigPath = `${os.homedir()}/.buttercup.json`;
 
 // this is the default config structure, the user is meant to edit their
 // configs by hand
@@ -66,5 +70,6 @@ module.exports = {
   validateObjectKeyType,
   objHasKeys,
   defaultConfig,
-  validateConfig
+  validateConfig,
+  defaultConfigPath
 };
