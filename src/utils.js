@@ -21,8 +21,50 @@ const objHasKeys = (obj, keys) => {
   return true;
 };
 
+// this is the default config structure, the user is meant to edit their
+// configs by hand
+const defaultConfig = {
+  archives: [
+    {
+      name: "example archive",
+      path: "/path/to/archive"
+    }
+  ]
+};
+
+const validateConfig = c => {
+  // give c all of the top level keys in defualt, and the spread c into it
+  // overwriting the defaults if the kyes are present
+  c = {
+    ...defaultConfig,
+    ...c
+  };
+
+  const defaultKeys = Object.keys(defaultConfig).sort();
+  if (!objHasKeys(c, defaultKeys)) {
+    return false;
+  }
+
+  const archiveIndexKeys = Object.keys(defaultConfig.archives[0]).sort();
+  for (const archive of c.archives) {
+    if (!objHasKeys(archive, archiveIndexKeys)) {
+      return false;
+    }
+
+    for (const k of archiveIndexKeys) {
+      if (!validateObjectKeyType(archive, k, "string")) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 module.exports = {
   log,
   validateObjectKeyType,
-  objHasKeys
+  objHasKeys,
+  defaultConfig,
+  validateConfig
 };

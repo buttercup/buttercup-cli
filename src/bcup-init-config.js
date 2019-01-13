@@ -5,22 +5,11 @@ var program = require("commander");
 var _fs = require("fs");
 var os = require("os");
 
-var { log } = require("./utils");
+var { defaultConfig, log } = require("./utils");
 
 program.parse(process.argv);
 
 const configPath = `${os.homedir()}/.buttercup.json`;
-
-// this is the default config structure, the user is meant to edit their
-// configs by hand
-const defaultConfig = {
-  archives: [
-    {
-      name: "example archive",
-      path: "/path/to/archive"
-    }
-  ]
-};
 
 // look for an existing config file and create a new one if it doesn't exist
 const initConfig = fs => {
