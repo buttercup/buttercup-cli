@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
+var fs = require("fs");
+
 var program = require("commander");
 
-var { defaultConfigPath } = require("./utils");
+var { defaultConfigPath, getConfig } = require("./utils");
 
 program.configPath = defaultConfigPath;
 
@@ -20,3 +22,25 @@ program
   .command("lock", "lock an archive");
 
 program.parse(process.argv);
+
+const main = p => {
+  // get and parse the config file, the command executables will be run
+  // after this
+  let c;
+  switch (true) {
+    case !!p.config: // if config option is truthy
+      c = getConfig(fs, p.config);
+      if (!c) return;
+
+      p.parsedConfig = c;
+      break;
+    case p.args.includes("init-config"): // don't get a config if running init
+      break;
+    default:
+      c = getConfig(fs, p.configPath);
+      if (!c) return;
+      p.parsedConfig = c;
+  }
+};
+
+main(program);

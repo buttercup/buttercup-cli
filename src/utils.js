@@ -46,17 +46,29 @@ const validateConfig = c => {
 
   const defaultKeys = Object.keys(defaultConfig).sort();
   if (!objHasKeys(c, defaultKeys)) {
+    log(
+      `your config has invalid keys ${Object.keys(
+        c
+      )}, valid keys are: ${defaultKeys}`
+    );
     return false;
   }
 
   const archiveIndexKeys = Object.keys(defaultConfig.archives[0]).sort();
   for (const archive of c.archives) {
     if (!objHasKeys(archive, archiveIndexKeys)) {
+      log(
+        `your archive has invalid keys: ${archive}, valid keys are ${archiveIndexKeys}`
+      );
       return false;
     }
 
     for (const k of archiveIndexKeys) {
-      if (!validateObjectKeyType(archive, k, "string")) {
+      const expected = typeof defaultConfig.archives[0][k];
+      if (!validateObjectKeyType(archive, k, expected)) {
+        log(
+          `your archive key types are invalid, expected ${expected} for keys: ${archiveIndexKeys}`
+        );
         return false;
       }
     }
@@ -65,11 +77,28 @@ const validateConfig = c => {
   return true;
 };
 
+// getConfig returns the parsed JSON config or false if there is no file
+const getConfig = (_fs, path) => {
+  if (_fs.existsSync(path)) {
+    const c = _fs.readFileSync(path);
+    const config = JSON.parse(c);
+    if (validateConfig(config)) {
+      return config;
+    }
+  }
+
+  log(
+    `there was a problem loading a config (${path}), check that the file exists and is valid`
+  );
+  return false;
+};
+
 module.exports = {
   log,
   validateObjectKeyType,
   objHasKeys,
   defaultConfig,
   validateConfig,
-  defaultConfigPath
+  defaultConfigPath,
+  getConfig
 };

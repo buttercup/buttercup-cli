@@ -1,11 +1,13 @@
-import test from "ava";
+var sinon = require("sinon");
+var test = require("ava");
 
-import {
+var {
   defaultConfig,
+  getConfig,
   objHasKeys,
   validateConfig,
   validateObjectKeyType
-} from "../src/utils";
+} = require("../src/utils");
 
 for (const [name, obj, key, type, expected] of [
   ["string === string", { foo: "bar" }, "foo", "string", true],
@@ -39,4 +41,30 @@ for (const [name, config, expectedValid] of [
   ["extra top level key fails", { ...defaultConfig, foo: 1 }, false]
 ]) {
   test(name, t => t.is(validateConfig(config), expectedValid));
+}
+
+for (const [name, doesExist, readFileReturn, expectedReturn] of [
+  [
+    "valid config exists is returned",
+    true,
+    JSON.stringify(defaultConfig),
+    defaultConfig
+  ],
+  ["doesn't exist returns false", false, null, false],
+  [
+    "exists but invalid returns false",
+    true,
+    JSON.stringify({ foo: "bad config" }),
+    false
+  ]
+]) {
+  let mockFs = {
+    existsSync: sinon.fake.returns(doesExist),
+    readFileSync: sinon.fake.returns(readFileReturn)
+  };
+
+  test(name, t => {
+    const result = getConfig(mockFs, "/");
+    t.deepEqual(result, expectedReturn);
+  });
 }
