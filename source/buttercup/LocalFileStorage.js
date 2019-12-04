@@ -29,6 +29,12 @@ class LocalFileStorage extends StorageInterface {
         await this._writeStorage(storage);
     }
 
+    async setValue(key, value) {
+        const storage = await this._readStorage();
+        storage[key] = value;
+        await this._writeStorage(storage);
+    }
+
     _readStorage() {
         return this.queue.channel("storage").enqueue(async () => {
             try {
