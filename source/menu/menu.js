@@ -1,4 +1,5 @@
 const figures = require("figures");
+const sleep = require("sleep-promise");
 const { colourDim, colourFigure, colourHighlight, colourOption, colourPrimary } = require("./misc.js");
 const { getKey } = require("../library/key.js");
 
@@ -13,13 +14,14 @@ async function drawMenu(prompt, options) {
         const { text, key } = option;
         console.log(`   ${colourOption(key + ".")} ${text}`);
     });
+    await sleep(50);
     process.stdout.write(`${colourDim(figures.questionMarkPrefix)} `);
     let targetOption = null;
     while (!targetOption) {
         const pressedKey = await getKey();
         targetOption = options.find(opt => opt.key === pressedKey.name) || null;
         if (targetOption) {
-            console.log(colourPrimary(pressedKey.name));
+            console.log(colourPrimary(pressedKey.name) + "\n");
         }
     }
     (targetOption.cb || NOOP)();

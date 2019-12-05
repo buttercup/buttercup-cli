@@ -39,6 +39,7 @@
     "minimist": "^1.2.0",
     "pify": "^4.0.1",
     "pw": "0.0.4",
+    "sleep-promise": "^8.0.1",
     "xdg-basedir": "^4.0.0"
   }
 }
