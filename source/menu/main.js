@@ -5,7 +5,10 @@ function runMainMenu() {
         "What would you like to do?",
         [
             { key: "n", text: "Add New Vault", cb: () => {} },
-            { key: "q", text: "Quit", cb: () => {} }
+            { key: "q", text: "Quit", cb: () => {
+                console.log("Take care now, bye bye then!\n");
+                process.exit(0);
+            } }
         ]
     );
 }

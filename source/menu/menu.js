@@ -2,6 +2,8 @@ const figures = require("figures");
 const { colourDim, colourFigure, colourHighlight, colourOption, colourPrimary } = require("./misc.js");
 const { getKey } = require("../library/key.js");
 
+const NOOP = () => {};
+
 async function drawMenu(prompt, options) {
     console.log(`${colourFigure(figures.play)} ${colourHighlight(prompt)}`);
     if (!options || options.length <= 0) {
@@ -20,7 +22,7 @@ async function drawMenu(prompt, options) {
             console.log(colourPrimary(pressedKey.name));
         }
     }
-    (targetOption.cb || () => {})();
+    (targetOption.cb || NOOP)();
 }
 
 module.exports = {
