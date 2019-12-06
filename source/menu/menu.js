@@ -25,6 +25,7 @@ async function drawMenu(prompt, options) {
         }
     }
     (targetOption.cb || NOOP)();
+    return targetOption.key;
 }
 
 module.exports = {
