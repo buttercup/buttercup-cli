@@ -2,6 +2,8 @@ const fileExists = require("file-exists");
 const { getInput, getPassword } = require("../library/input.js");
 const { drawMenu } = require("./menu.js");
 const { colourHighlight } = require("./misc.js");
+const { extractTitleFromPath } = require("../library/file.js");
+const { addLocalSource } = require("../buttercup/archiveManagement.js");
 
 async function runNewLocalVault() {
     const fileName = await getInput("Vault filename: ");
@@ -24,6 +26,8 @@ async function runNewLocalVault() {
         isNew = true;
     }
     const password = await getPassword(colourHighlight("Vault password: "));
+    const title = await getInput("Title: ", [extractTitleFromPath(fileName)]);
+    await addLocalSource(title, filename, password, isNew);
 }
 
 function runVaultAccessMenu() {
