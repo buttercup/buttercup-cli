@@ -4,7 +4,7 @@ const xdgBaseDir = require("xdg-basedir");
 const pkgJson = require("../../package.json");
 
 const CONFIG_DEFAULTS = {
-    archiveManagementCache: path.join(xdgBaseDir.config, "buttercup-cli.archivemanagement.json")
+    archiveManagementCache: path.join(xdgBaseDir.config, "archivemanagement.buttercup-cli.json")
 };
 
 let __config = null;
