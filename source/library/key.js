@@ -14,14 +14,19 @@ const keypress = require("keypress");
  */
 function getKey() {
     return new Promise(resolve => {
+        const isRaw = process.stdin.isRaw;
         keypress(process.stdin);
-        process.stdin.on("keypress", (ch, key) => {
-            //console.log('got "keypress"', key);
-            //if (key && key.ctrl && key.name == 'c') {
-            process.stdin.pause();
+        const onKeyPress = (ch, key) => {
+            restore();
             resolve(key);
-            //}
-        });
+        };
+        const restore = () => {
+            process.stdout.write("");
+            process.stdin.setRawMode(isRaw);
+            process.stdin.pause();
+            process.stdin.off("keypress", onKeyPress);
+        };
+        process.stdin.on("keypress", onKeyPress);
         process.stdin.setRawMode(true);
         process.stdin.resume();
     });

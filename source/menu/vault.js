@@ -1,5 +1,5 @@
 const fileExists = require("file-exists");
-const { getPassword } = require("../library/input.js");
+const { getInput, getPassword } = require("../library/input.js");
 const { drawMenu } = require("./menu.js");
 const { colourHighlight } = require("./misc.js");
 
@@ -8,7 +8,6 @@ async function runNewLocalVault() {
     const targetExists = await fileExists(fileName);
     let isNew = false;
     if (!targetExists) {
-        console.log();
         const action = await drawMenu(
             "That file doesn't exist - what would you like to do?",
             [
@@ -34,7 +33,13 @@ function runVaultAccessMenu() {
         [
             { key: "l", text: "Local file", cb: runNewLocalVault },
             { key: "q", text: "Quit / Back", cb: runMainMenu }
-        ]
+        ],
+        {
+            onFailure: err => {
+                console.error(err);
+                runVaultAccessMenu();
+            }
+        }
     );
 }
 

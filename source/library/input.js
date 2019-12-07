@@ -3,7 +3,13 @@ const pw = require("pw");
 const sleep = require("sleep-promise");
 
 function getInput(prompt, suggestions = []) {
-    return autoComplete({ start: prompt, suggestions });
+    return autoComplete({ start: prompt, suggestions: new Set([...suggestions]) })
+        .then(value =>
+            sleep(50).then(() => {
+                console.log("");
+                return value;
+            })
+        );
 }
 
 async function getPassword(prompt) {
