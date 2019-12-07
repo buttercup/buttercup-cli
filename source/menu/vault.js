@@ -1,4 +1,6 @@
 const fileExists = require("file-exists");
+const ora = require("ora");
+const expandHomeDir = require("expand-home-dir");
 const { getInput, getPassword } = require("../library/input.js");
 const { drawMenu } = require("./menu.js");
 const { colourHighlight } = require("./misc.js");
@@ -6,7 +8,9 @@ const { extractTitleFromPath } = require("../library/file.js");
 const { addLocalSource } = require("../buttercup/archiveManagement.js");
 
 async function runNewLocalVault() {
-    const fileName = await getInput("Vault filename: ");
+    const { runMainMenu } = require("./main.js");
+    const fileNameRaw = await getInput("Vault filename: ");
+    const fileName = expandHomeDir(fileNameRaw);
     const targetExists = await fileExists(fileName);
     let isNew = false;
     if (!targetExists) {
@@ -27,7 +31,15 @@ async function runNewLocalVault() {
     }
     const password = await getPassword(colourHighlight("Vault password: "));
     const title = await getInput("Title: ", [extractTitleFromPath(fileName)]);
-    await addLocalSource(title, filename, password, isNew);
+    const spinner = ora("Adding source").start();
+    try {
+        await addLocalSource(title, fileName, password, isNew);
+        spinner.succeed("Successfully added source");
+        runMainMenu();
+    } catch (err) {
+        spinner.fail(`Adding source failed: ${err.message}`);
+        runVaultAccessMenu();
+    }
 }
 
 function runVaultAccessMenu() {

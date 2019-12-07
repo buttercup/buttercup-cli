@@ -1,4 +1,5 @@
 const { drawMenu } = require("./menu.js");
+const { hardQuit } = require("../library/process.js");
 
 function runMainMenu() {
     const { runVaultAccessMenu } = require("./vault.js");
@@ -7,8 +8,7 @@ function runMainMenu() {
         [
             { key: "n", text: "Add new vault", cb: runVaultAccessMenu },
             { key: "q", text: "Quit", cb: () => {
-                console.log("Take care now, bye bye then!\n");
-                process.exit(0);
+                hardQuit();
             } }
         ]
     );

@@ -1,4 +1,5 @@
 const keypress = require("keypress");
+const { hardQuit } = require("./process.js");
 
 /**
  * @typedef {Object} Key
@@ -18,6 +19,9 @@ function getKey() {
         keypress(process.stdin);
         const onKeyPress = (ch, key) => {
             restore();
+            if (key.ctrl && key.name === "c") {
+                hardQuit();
+            }
             resolve(key);
         };
         const restore = () => {

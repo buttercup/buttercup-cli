@@ -7,6 +7,7 @@
     "bcup": "./source/index.js"
   },
   "scripts": {
+    "start": "node source/index.js",
     "test": "xo"
   },
   "repository": {
@@ -39,6 +40,7 @@
     "inquirer": "^7.0.0",
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
+    "ora": "^4.0.3",
     "pify": "^4.0.1",
     "pw": "0.0.4",
     "sleep-promise": "^8.0.1",

@@ -34,6 +34,7 @@ function initialiseArchiveManager(storageFilename) {
 }
 
 module.exports = {
+    addLocalSource,
     getSharedManager,
     initialiseArchiveManager
 };
