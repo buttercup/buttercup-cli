@@ -13,11 +13,7 @@ async function drawMenu(prompt, options, config = {}) {
             throw new Error("No options for menu");
         }
         options.forEach(option => {
-            const { text, key, sep } = option;
-            if (sep) {
-                console.log("");
-                return;
-            }
+            const { text, key } = option;
             console.log(`   ${colourOption(key + ".")} ${text}`);
         });
         await sleep(50);

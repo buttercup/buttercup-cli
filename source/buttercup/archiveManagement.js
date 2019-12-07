@@ -26,11 +26,12 @@ function getSharedManager() {
     return __archiveManager;
 }
 
-function initialiseArchiveManager(storageFilename) {
+async function initialiseArchiveManager(storageFilename) {
     if (__archiveManager) {
         throw new Error("Failed initialising: Archive manager instance already exists");
     }
     __archiveManager = new ArchiveManager(new LocalFileStorage(storageFilename));
+    await __archiveManager.rehydrate();
 }
 
 module.exports = {

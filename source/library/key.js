@@ -17,7 +17,8 @@ function getKey() {
     return new Promise(resolve => {
         const isRaw = process.stdin.isRaw;
         keypress(process.stdin);
-        const onKeyPress = (ch, key) => {
+        const onKeyPress = (ch, k) => {
+            const key = sanitiseKey(ch, k);
             restore();
             if (key.ctrl && key.name === "c") {
                 hardQuit();
@@ -34,6 +35,18 @@ function getKey() {
         process.stdin.setRawMode(true);
         process.stdin.resume();
     });
+}
+
+function sanitiseKey(ch, key) {
+    if (!key) {
+        return {
+            name: `${ch}`,
+            ctrl: false,
+            meta: false,
+            shift: false
+        };
+    }
+    return key;
 }
 
 module.exports = {

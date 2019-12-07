@@ -23,7 +23,6 @@ function runMainMenu() {
                     console.log(source);
                 }
             })),
-            { sep: true },
             { key: "n", text: "Add new vault", cb: runVaultAccessMenu },
             { key: "q", text: "Quit", cb: () => {
                 hardQuit();

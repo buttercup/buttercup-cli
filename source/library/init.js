@@ -1,10 +1,10 @@
 const { getConfig, initialiseConfig } = require("./config.js");
 const { initialiseArchiveManager } = require("../buttercup/archiveManagement.js");
 
-function initialise(configPath = null) {
+async function initialise(configPath = null) {
     initialiseConfig(configPath);
     const archiveManagementCachePath = getConfig().get("archiveManagementCache");
-    initialiseArchiveManager(archiveManagementCachePath);
+    await initialiseArchiveManager(archiveManagementCachePath);
 }
 
 module.exports = {

@@ -8,9 +8,15 @@ const {
     config = null
 } = argv;
 
-initialise(config);
 
+initialise(config)
+    .then(() => {
+        // Start regular GUI operation:
+        printButtercupWelcome();
+        runMainMenu();
+    })
+    .catch(err => {
+        console.error(err);
+        process.exit(1);
+    });
 
-// Start regular GUI operation:
-printButtercupWelcome();
-runMainMenu();
