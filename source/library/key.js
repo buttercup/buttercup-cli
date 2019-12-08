@@ -19,9 +19,14 @@ function getKey() {
         keypress(process.stdin);
         const onKeyPress = (ch, k) => {
             const key = sanitiseKey(ch, k);
+            // if (key.ctrl && key.name === "z") {
+            //     process.emit("SIGTSTP");
+            //     return;
+            // }
             restore();
             if (key.ctrl && key.name === "c") {
                 hardQuit();
+                return;
             }
             resolve(key);
         };

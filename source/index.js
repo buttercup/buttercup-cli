@@ -8,6 +8,9 @@ const {
     config = null
 } = argv;
 
+// process.on("SIGTSTP", evt => {
+//     console.log("SIGTSTP", evt);
+// });
 
 initialise(config)
     .then(() => {
