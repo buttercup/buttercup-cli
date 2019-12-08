@@ -8,6 +8,33 @@ const { colourHighlight, styleVaultStatus } = require("./misc.js");
 const { extractTitleFromPath } = require("../library/file.js");
 const { addLocalSource, getSharedManager } = require("../buttercup/archiveManagement.js");
 
+async function performLockSource(sourceID) {
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const spinner = ora(`Locking '${source.name}'`).start();
+    try {
+        await source.lock();
+        spinner.succeed(`Locked '${source.name}'`);
+    } catch (err) {
+        spinner.fail(`Failed locking '${source.name}': ${err.message}`);
+    }
+    runVaultAccessMenu(sourceID);
+}
+
+async function performUnlockSource(sourceID) {
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const password = await getPassword(colourHighlight("Vault password: "));
+    const spinner = ora(`Unlocking '${source.name}'`).start();
+    try {
+        await source.unlock(password);
+        spinner.succeed(`Unlocked '${source.name}'`);
+    } catch (err) {
+        spinner.fail(`Failed unlocking '${source.name}': ${err.message}`);
+    }
+    runVaultAccessMenu(sourceID);
+}
+
 async function runNewLocalVault() {
     const { runMainMenu } = require("./main.js");
     const fileNameRaw = await getInput("Vault filename: ");
@@ -59,8 +86,8 @@ function runVaultAccessMenu(sourceID) {
         borderStyle: "doubleSingle"
     }));
     const lockUnlockOptions = isLocked
-        ? [{ key: "u", text: "Unlock vault", cb: () => {} }]
-        : [{ key: "l", text: "Lock vault", cb: () => {} }];
+        ? [{ key: "u", text: "Unlock vault", cb: () => performUnlockSource(sourceID) }]
+        : [{ key: "l", text: "Lock vault", cb: () => performLockSource(sourceID) }];
     drawMenu(
         "Choose vault action:",
         [
