@@ -1,11 +1,12 @@
 const fileExists = require("file-exists");
 const ora = require("ora");
 const expandHomeDir = require("expand-home-dir");
+const boxen = require("boxen");
 const { getInput, getPassword } = require("../library/input.js");
 const { drawMenu } = require("./menu.js");
-const { colourHighlight } = require("./misc.js");
+const { colourHighlight, styleVaultStatus } = require("./misc.js");
 const { extractTitleFromPath } = require("../library/file.js");
-const { addLocalSource } = require("../buttercup/archiveManagement.js");
+const { addLocalSource, getSharedManager } = require("../buttercup/archiveManagement.js");
 
 async function runNewLocalVault() {
     const { runMainMenu } = require("./main.js");
@@ -42,6 +43,60 @@ async function runNewLocalVault() {
     }
 }
 
+function runVaultAccessMenu(sourceID) {
+    const { runMainMenu } = require("./main.js");
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const isLocked = source.status !== "unlocked";
+    console.log(boxen(`${source.name}\n${styleVaultStatus(isLocked)}`, {
+        padding: {
+            top: 0,
+            bottom: 0,
+            left: 1,
+            right: 1
+        },
+        borderColor: "#ccc",
+        borderStyle: "doubleSingle"
+    }));
+    const lockUnlockOptions = isLocked
+        ? [{ key: "u", text: "Unlock vault", cb: () => {} }]
+        : [{ key: "l", text: "Lock vault", cb: () => {} }];
+    drawMenu(
+        "Choose vault action:",
+        [
+            ...lockUnlockOptions,
+            { key: "r", text: "Remove vault", cb: async () => {
+                const choice = await drawMenu(
+                    `Are you sure that you wish to remove '${source.name}'?`,
+                    [
+                        { key: "y", text: "Yes (remove)" },
+                        { key: "n", text: "No / cancel" }
+                    ]
+                );
+                if (choice !== "y") {
+                    return runVaultAccessMenu(sourceID);
+                }
+                const spinner = ora("Removing source").start();
+                try {
+                    await archiveManager.removeSource(sourceID);
+                    spinner.succeed("Successfully removed source");
+                    return runMainMenu();
+                } catch (err) {
+                    spinner.fail(`Removing source failed: ${err.message}`);
+                    return runVaultAccessMenu(sourceID);
+                }
+            } },
+            { key: "q", text: "Quit / Back", cb: runMainMenu }
+        ],
+        {
+            onFailure: err => {
+                console.error(err);
+                runVaultAccessMenu(sourceID);
+            }
+        }
+    );
+}
+
 function runVaultAdditionMenu() {
     const { runMainMenu } = require("./main.js");
     drawMenu(
@@ -60,5 +115,6 @@ function runVaultAdditionMenu() {
 }
 
 module.exports = {
+    runVaultAccessMenu,
     runVaultAdditionMenu
 };

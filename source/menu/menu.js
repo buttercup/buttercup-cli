@@ -5,6 +5,30 @@ const { getKey } = require("../library/key.js");
 
 const NOOP = () => {};
 
+/**
+ * @typedef {Object} MenuOption
+ * @property {String} key The key to listen for
+ * @property {String} text The text to display for the option
+ * @property {Function=} cb Optional callback for the menu option
+ *  (optional - key is also returned asynchronously)
+ */
+
+/**
+ * @typedef {Object} DrawMenuOptions
+ * @property {Function=} onFailure - On-error callback for if a
+ *  menu item callback fails
+ */
+
+/**
+ * Create and display a menu
+ * @param {String} prompt The menu prompt text
+ * @param {MenuOption[]} options Non-empty array of menu options
+ * @param {DrawMenuOptions=} config Optional configuration for
+ *  the menu
+ * @returns {Promise.<String>} A promise resolving with the
+ *  pressed key name
+ * @throws {Error} Throws if options is empty
+ */
 async function drawMenu(prompt, options, config = {}) {
     const { onFailure = NOOP } = config;
     try {

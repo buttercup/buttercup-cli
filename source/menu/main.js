@@ -2,11 +2,12 @@ const figures = require("figures");
 const { drawMenu } = require("./menu.js");
 const { hardQuit } = require("../library/process.js");
 const { getSharedManager } = require("../buttercup/archiveManagement.js");
+const { styleVaultStatus } = require("./misc.js");
 
 const VAULT_HOTKEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 
 function runMainMenu() {
-    const { runVaultAdditionMenu } = require("./vault.js");
+    const { runVaultAccessMenu, runVaultAdditionMenu } = require("./vault.js");
     const vaults = getSharedManager().sources
         .map((source, idx) => Object.assign(
             { hotkey: VAULT_HOTKEYS[idx] },
@@ -18,10 +19,8 @@ function runMainMenu() {
         [
             ...vaults.map(source => ({
                 key: source.hotkey,
-                text: `${figures.pointer} ${source.name}`,
-                cb: () => {
-                    console.log(source);
-                }
+                text: `${styleVaultStatus(source.status !== "unlocked", true)} ${source.name}`,
+                cb: () => runVaultAccessMenu(source.id)
             })),
             { key: "n", text: "Add new vault", cb: runVaultAdditionMenu },
             { key: "q", text: "Quit", cb: () => {
