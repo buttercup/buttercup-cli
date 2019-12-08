@@ -25,7 +25,7 @@ async function runNewLocalVault() {
         if (action === "l") {
             return runNewLocalVault();
         } else if (action === "q") {
-            return runVaultAccessMenu();
+            return runVaultAdditionMenu();
         }
         isNew = true;
     }
@@ -38,11 +38,11 @@ async function runNewLocalVault() {
         runMainMenu();
     } catch (err) {
         spinner.fail(`Adding source failed: ${err.message}`);
-        runVaultAccessMenu();
+        runVaultAdditionMenu();
     }
 }
 
-function runVaultAccessMenu() {
+function runVaultAdditionMenu() {
     const { runMainMenu } = require("./main.js");
     drawMenu(
         "Choose vault type to add:",
@@ -53,12 +53,12 @@ function runVaultAccessMenu() {
         {
             onFailure: err => {
                 console.error(err);
-                runVaultAccessMenu();
+                runVaultAdditionMenu();
             }
         }
     );
 }
 
 module.exports = {
-    runVaultAccessMenu
+    runVaultAdditionMenu
 };
