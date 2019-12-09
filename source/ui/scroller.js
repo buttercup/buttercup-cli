@@ -5,8 +5,6 @@ const cliResize = require("cli-resize");
 const chalk = require("chalk");
 const { onKey } = require("../library/key.js");
 
-const PADDING_HORIZONTAL = 1;
-
 function normaliseSize(size) {
     return typeof size.columns === "number"
         ? {
@@ -36,11 +34,14 @@ function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
         active = true,
         currentTerminalSize = normaliseSize(cliSize());
     const render = () => {
-        const maxLineLength = currentTerminalSize.width - 2 - (PADDING_HORIZONTAL * 2);
+        const maxLineLength = currentTerminalSize.width - 2 - 2; // - (border) - (padding)
         const innerText = lines
             .slice(scrollPosition, scrollPosition + visibleLines)
             .map((line, idx) => {
-                const newLine = padLine(line.slice(0, maxLineLength), maxLineLength);
+                const newLine = padLine(
+                    ` ${line.slice(0, maxLineLength)} `,
+                    maxLineLength
+                );
                 return idx === selectedLineInView ? chalk.inverse(newLine) : newLine;
             })
             .join("\n");
@@ -48,8 +49,8 @@ function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
             padding: {
                 top: 0,
                 bottom: 0,
-                left: PADDING_HORIZONTAL,
-                right: PADDING_HORIZONTAL
+                left: 0,
+                right: 0
             }
         }));
     };
