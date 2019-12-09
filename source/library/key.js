@@ -15,26 +15,38 @@ const { hardQuit } = require("./process.js");
  */
 function getKey() {
     return new Promise(resolve => {
-        const isRaw = process.stdin.isRaw;
-        keypress(process.stdin);
-        const onKeyPress = (ch, k) => {
-            const key = sanitiseKey(ch, k);
-            restore();
-            if (key.ctrl && key.name === "c") {
-                hardQuit();
-            }
+        const removeListener = onKey(key => {
+            removeListener();
             resolve(key);
-        };
-        const restore = () => {
-            process.stdout.write("");
-            process.stdin.setRawMode(isRaw);
-            process.stdin.pause();
-            process.stdin.off("keypress", onKeyPress);
-        };
-        process.stdin.on("keypress", onKeyPress);
-        process.stdin.setRawMode(true);
-        process.stdin.resume();
+        });
     });
+}
+
+function onKey(cb) {
+    const isRaw = process.stdin.isRaw;
+    let active = true;
+    keypress(process.stdin);
+    const onKeyPress = (ch, k) => {
+        const key = sanitiseKey(ch, k);
+        if (key.ctrl && key.name === "c") {
+            hardQuit();
+        }
+        setTimeout(() => cb(key), 0);
+    };
+    const restore = () => {
+        if (!active) {
+            return;
+        }
+        active = false;
+        process.stdout.write("");
+        process.stdin.setRawMode(isRaw);
+        process.stdin.pause();
+        process.stdin.removeListener("keypress", onKeyPress);
+    };
+    process.stdin.on("keypress", onKeyPress);
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    return restore;
 }
 
 function sanitiseKey(ch, key) {
@@ -50,5 +62,6 @@ function sanitiseKey(ch, key) {
 }
 
 module.exports = {
-    getKey
+    getKey,
+    onKey
 };
