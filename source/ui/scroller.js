@@ -3,7 +3,14 @@ const boxen = require("boxen");
 const cliSize = require("cli-size");
 const cliResize = require("cli-resize");
 const chalk = require("chalk");
+const stripANSI = require("strip-ansi");
 const { onKey } = require("../library/key.js");
+
+const NOOP = () => {}
+
+function actualLength(str) {
+    return stripANSI(str).length;
+}
 
 function normaliseSize(size) {
     return typeof size.columns === "number"
@@ -14,28 +21,28 @@ function normaliseSize(size) {
 }
 
 function padLine(line, length, char = " ") {
-    if (line.length >= length) {
+    if (actualLength(line) >= length) {
         return line;
     }
     let output = line;
-    while (output.length < length) {
+    while (actualLength(output) < length) {
         output += char;
     }
     return output;
 }
 
-function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
-    if (lines.length <= 0) {
+function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, visibleLines = 5 }) {
+    let lines = linesRaw;
+    if (actualLength(lines) <= 0) {
         throw new Error("Cannot show empty scroller");
     }
-    const visibleLines = Math.min(uVisibleLines, lines.length);
     let scrollPosition = 0,
         selectedLineInView = 0,
         active = true,
         currentTerminalSize = normaliseSize(cliSize());
     const render = () => {
         const maxLineLength = currentTerminalSize.width - 2 - 2; // - (border) - (padding)
-        const innerText = lines
+        const rawOutputLines = lines
             .slice(scrollPosition, scrollPosition + visibleLines)
             .map((line, idx) => {
                 const newLine = padLine(
@@ -43,16 +50,19 @@ function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
                     maxLineLength
                 );
                 return idx === selectedLineInView ? chalk.inverse(newLine) : newLine;
-            })
-            .join("\n");
-        logUpdate(boxen(innerText, {
-            padding: {
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0
-            }
-        }));
+            });
+        while (rawOutputLines.length < visibleLines) {
+            rawOutputLines.push("");
+        }
+        const innerText = rawOutputLines.join("\n");
+        logUpdate(boxen(innerText, { padding: 0 }));
+    };
+    const update = (newLines = lines) => {
+        lines = newLines;
+        if (lines.length <= 0) {
+            throw new Error("Cannot update empty scroller");
+        }
+        render();
     };
     const removeKeyListener = onKey(key => {
         if (key.name === "up") {
@@ -61,14 +71,17 @@ function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
             } else {
                 selectedLineInView -= 1;
             }
+            return render();
         } else if (key.name === "down") {
-            if (selectedLineInView === visibleLines - 1) {
-                scrollPosition = Math.min(lines.length - visibleLines, scrollPosition + 1);
+            const actualVisibleLines = Math.min(visibleLines, lines.length);
+            if (selectedLineInView === actualVisibleLines - 1) {
+                scrollPosition = Math.min(lines.length - actualVisibleLines, scrollPosition + 1);
             } else {
                 selectedLineInView += 1;
             }
+            return render();
         }
-        render();
+        onKeyCB(key, scrollPosition + selectedLineInView);
     });
     const stop = () => {
         active = false;
@@ -81,7 +94,10 @@ function showScroller({ lines, visibleLines: uVisibleLines = 5 }) {
         }
     });
     render();
-    return stop;
+    return {
+        stop,
+        update
+    };
 }
 
 module.exports = {
