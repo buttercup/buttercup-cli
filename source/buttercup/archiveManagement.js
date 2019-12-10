@@ -1,4 +1,5 @@
 const { ArchiveManager, ArchiveSource, Credentials } = require("buttercup");
+const { createArchiveFacade } = require("@buttercup/facades");
 const LocalFileStorage = require("./LocalFileStorage.js");
 
 let __archiveManager = null;
@@ -36,6 +37,7 @@ async function initialiseArchiveManager(storageFilename) {
 
 module.exports = {
     addLocalSource,
+    createArchiveFacade,
     getSharedManager,
     initialiseArchiveManager
 };

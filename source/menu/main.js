@@ -26,7 +26,13 @@ function runMainMenu() {
             { key: "q", text: "Quit", cb: () => {
                 hardQuit();
             } }
-        ]
+        ],
+        {
+            onFailure: err => {
+                console.error(err);
+                runMainMenu();
+            }
+        }
     );
 }
 
