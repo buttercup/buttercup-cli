@@ -72,6 +72,7 @@ async function runNewLocalVault() {
 
 function runVaultAccessMenu(sourceID) {
     const { runMainMenu } = require("./main.js");
+    const { runVaultContentsMenu } = require("./vaultContents.js");
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
     const isLocked = source.status !== "unlocked";
@@ -87,7 +88,10 @@ function runVaultAccessMenu(sourceID) {
     }));
     const lockUnlockOptions = isLocked
         ? [{ key: "u", text: "Unlock vault", cb: () => performUnlockSource(sourceID) }]
-        : [{ key: "l", text: "Lock vault", cb: () => performLockSource(sourceID) }];
+        : [
+            { key: "a", text: "Access vault contents", cb: () => runVaultContentsMenu(sourceID) },
+            { key: "l", text: "Lock vault", cb: () => performLockSource(sourceID) }
+        ];
     drawMenu(
         "Choose vault action:",
         [

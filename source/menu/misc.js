@@ -3,7 +3,7 @@ const figures = require("figures");
 const pkgJson = require("../../package.json");
 const { BUTTERCUP_COLOUR_RGB, FIGURE_COLOUR_RGB, LOCKED_COLOUR_RGB, OPTION_COLOUR_RGB, UNLOCKED_COLOUR_RGB } = require("../symbols.js");
 
-const colourDim = txt => chalk.dim(txt);
+const colourDim = txt => chalk.dim.italic(txt);
 const colourFigure = txt => chalk.rgb(...FIGURE_COLOUR_RGB)(txt);
 const colourHighlight = txt => chalk.white(txt);
 const colourOption = txt => chalk.rgb(...OPTION_COLOUR_RGB)(txt);
