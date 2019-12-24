@@ -1,4 +1,5 @@
 const figures = require("figures");
+const isWindows = require("is-windows");
 const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveManagement.js");
 const { showScroller } = require("../ui/scroller.js");
 const { colourDim } = require("./misc.js");
@@ -58,7 +59,9 @@ function runVaultContentsMenu(sourceID) {
         lines: items.map(item => item.text),
         onKey: (key, idx) => {
             const item = items[idx];
-            if (key.name === "enter" || key.name === "return") {
+            // console.log(key); process.exit(0);
+            // console.log("KEY", key, "\n\n");
+            if (key.name === "return") {
                 if (item.type === "group") {
                     if (openGroups.includes(item.id)) {
                         openGroups = openGroups.filter(gID => gID !== item.id);

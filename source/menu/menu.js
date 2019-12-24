@@ -50,7 +50,9 @@ async function drawMenu(prompt, options, config = {}) {
                 console.log(colourPrimary(pressedKey.name) + "\n");
             }
         }
-        (targetOption.cb || NOOP)();
+        setTimeout(() => {
+            (targetOption.cb || NOOP)();
+        }, 0);
         return targetOption.key;
     } catch (err) {
         onFailure(err);
