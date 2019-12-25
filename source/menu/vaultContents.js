@@ -72,13 +72,14 @@ function runNewItemMenu(sourceID, parentGroupID) {
         {
             onFailure: err => {
                 console.error(err);
-                runVaultAccessMenu();
+                runVaultAccessMenu(sourceID);
             }
         }
     );
 }
 
 function runVaultContentsMenu(sourceID) {
+    const { runVaultAccessMenu } = require("./vault.js");
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
     const archiveFacade = createArchiveFacade(source.workspace.archive);
@@ -103,6 +104,9 @@ function runVaultContentsMenu(sourceID) {
                 stop();
                 console.log(item, idx);
                 return runNewItemMenu(sourceID, item.containerID);
+            } else if (key.name === "q") {
+                stop();
+                return runVaultAccessMenu(sourceID);
             }
         },
         visibleLines: 8
