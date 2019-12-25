@@ -5,13 +5,23 @@ const { showScroller } = require("../ui/scroller.js");
 const { colourDim } = require("./misc.js");
 const { drawMenu } = require("./menu.js");
 
-function createTree(facade, { currentGroup = "0", indent = 0, openGroups = [] } = {}) {
+function createTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } = {}) {
     return [
+        ...(currentGroup === "0" ? [
+            {
+                text: colourDim("(vault root)"),
+                title: "(vault root)",
+                type: "vault",
+                id: "0",
+                containerID: "0"
+            }
+        ]: []),
         ...facade.groups.reduce((groups, group) => {
             if (group.parentID === currentGroup) {
                 const arrowFigure = openGroups.includes(group.id) ? figures.arrowDown : figures.arrowRight;
                 groups.push({
                     text: `${generateIndent(indent)}${arrowFigure} ${group.title}`,
+                    title: group.title,
                     type: "group",
                     id: group.id,
                     containerID: group.id
@@ -31,6 +41,7 @@ function createTree(facade, { currentGroup = "0", indent = 0, openGroups = [] } 
                 const title = entry.fields.find(field => field.propertyType === "property" && field.property === "title").value;
                 entries.push({
                     text: `${generateIndent(indent)}${figures.bullet} ${title}`,
+                    title,
                     type: "entry",
                     id: entry.id,
                     containerID: entry.parentID
@@ -51,7 +62,7 @@ function generateIndent(count) {
     return output;
 }
 
-function runNewItemMenu(sourceID, parentGroupID) {
+function runNewItemMenu(sourceID, parentGroupID, parentTitle) {
     const { runVaultAccessMenu } = require("./vault.js");
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
@@ -64,7 +75,7 @@ function runNewItemMenu(sourceID, parentGroupID) {
         );
     }
     drawMenu(
-        "Choose vault type to add:",
+        `Add item item to '${parentTitle}':`,
         [
             ...choices,
             { key: "q", text: "Quit / Back", cb: () => runVaultContentsMenu(sourceID) }
@@ -102,8 +113,7 @@ function runVaultContentsMenu(sourceID) {
                 }
             } else if (key.name === "n") {
                 stop();
-                console.log(item, idx);
-                return runNewItemMenu(sourceID, item.containerID);
+                return runNewItemMenu(sourceID, item.containerID, item.title);
             } else if (key.name === "q") {
                 stop();
                 return runVaultAccessMenu(sourceID);
