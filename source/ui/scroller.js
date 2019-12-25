@@ -83,9 +83,12 @@ function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, visibleLines = 5
         }
         onKeyCB(key, scrollPosition + selectedLineInView);
     });
-    const stop = () => {
+    const stop = ({ clear = true } = {}) => {
         active = false;
         removeKeyListener();
+        if (clear) {
+            logUpdate.clear();
+        }
     };
     cliResize(size => {
         if (active) {
