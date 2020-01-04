@@ -2,12 +2,16 @@ const autoComplete = require("autocomplete-cli");
 const pw = require("pw");
 const sleep = require("sleep-promise");
 
-async function editInput(prompt, value = "") {
+async function editInput(prompt, value = "", allowEmpty = true) {
     const { colourDim, colourHighlight } = require("../menu/misc.js");
     const { drawMenu } = require("../menu/menu.js");
     console.log(`${colourHighlight("Current value:")} ${value}`);
-    const newValue = await getInput(`${colourDim("(Empty value prompts to cancel)")} ${prompt}`);
+    const emptyMessage = allowEmpty ? "Empty value prompts to cancel" : "Empty value cancels";
+    const newValue = await getInput(`${colourDim(`(${emptyMessage})`)} ${prompt}`);
     if (newValue === "") {
+        if (!allowEmpty) {
+            return null;
+        }
         const action = await drawMenu(
             "Empty value entered - what would you like to do?",
             [

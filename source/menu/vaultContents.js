@@ -273,6 +273,21 @@ async function runEditEntry(sourceID, entryID) {
     });
 }
 
+async function runEditGroup(sourceID, groupID) {
+    const { performSaveSource } = require("./vault.js");
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const group = source.workspace.archive.findGroupByID(groupID);
+    const newTitle = await editInput("New title: ", group.getTitle(), /* allow empty: */ false);
+    if (!newTitle) {
+        runVaultContentsMenu(sourceID);
+        return;
+    }
+    group.setTitle(newTitle);
+    await performSaveSource(source);
+    runVaultContentsMenu(sourceID);
+}
+
 async function runNewEntry(sourceID, parentGroupID) {
     const { performSaveSource } = require("./vault.js");
     const entryTitle = await getInput("Entry title (empty for cancel): ");
@@ -361,13 +376,17 @@ function runVaultContentsMenu(sourceID) {
                 if (item.type === "entry") {
                     stop();
                     return runEditEntry(sourceID, item.id);
+                } else if (item.type === "group") {
+                    stop();
+                    return runEditGroup(sourceID, item.id);
                 }
             } else if (key.name === "q") {
                 stop();
                 return runVaultAccessMenu(sourceID);
             }
         },
-        prefix: colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"),
+        // @todo: Move = m
+        prefix: colourDim("(Open = enter, Delete = d, New Group/Entry = n, Edit = e, Cancel/Quit = q)"),
         visibleLines: SCROLLER_VISIBLE_LINES
     });
 }
