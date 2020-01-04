@@ -47,6 +47,7 @@
     "log-update": "^3.3.0",
     "minimist": "^1.2.0",
     "ora": "^4.0.3",
+    "otpauth": "^5.0.4",
     "pify": "^4.0.1",
     "pw": "0.0.4",
     "sleep-promise": "^8.0.1",

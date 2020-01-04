@@ -8,6 +8,7 @@ const { colourDim, colourOption } = require("./misc.js");
 const { drawMenu } = require("./menu.js");
 const { editInput, getInput } = require("../library/input.js");
 const { padLine } = require("../library/format.js");
+const { renderEntryValue } = require("../ui/entry.js");
 
 const MAX_ENTRY_TITLE_LENGTH = 40;
 const NEW_PROPERTY_SUGGESTIONS = [
@@ -145,11 +146,13 @@ function createEntryScrollerItems(entryFacade, options = {}) {
         if (field.propertyType === "property") {
             const title = field.title || field.property;
             const isHidden = field.valueType === FIELD_VALUE_TYPE_PASSWORD && !showingHidden;
-            const value = field.value ? field.value : "";
+            const renderedValue = renderEntryValue(field.value, field.valueType);
+            const formattedValue = isHidden ? colourDim("(hidden)") : renderedValue.text;
             output.push({
-                text: `${colourOption(padLine(title, keyLen))}: ${isHidden ? colourDim("(hidden)") : value}`,
+                text: `${colourOption(padLine(title, keyLen))}: ${formattedValue}`,
                 type: "property",
-                field
+                field,
+                refresh: renderedValue.refresh
             });
         }
         return output;
@@ -222,10 +225,27 @@ async function runEditEntry(sourceID, entryID) {
     const archiveFacade = createArchiveFacade(source.workspace.archive);
     const entryFacade = archiveFacade.entries.find(item => item.id === entryID);
     // Scroller
-    const _createItems = () => createEntryScrollerItems(entryFacade, { showingHidden });
+    let refreshTimer = null;
+    const recreateItems = (updateScroller = true) => {
+        items = createEntryScrollerItems(entryFacade, { showingHidden });
+        const hasRefresh = items.some(item => item.refresh === true);
+        if (hasRefresh && refreshTimer === null) {
+            refreshTimer = setInterval(() => {
+                recreateItems();
+            }, 1000);
+        }
+        if (updateScroller) {
+            update(items.map(item => item.text));
+        }
+    };
+    const stop = () => {
+        clearInterval(refreshTimer);
+        stopScroller();
+    };
     let showingHidden = false,
-        items = _createItems();
-    const { stop, update } = showScroller({
+        items;
+    recreateItems(false);
+    const { stop: stopScroller, update } = showScroller({
         lines: items.map(item => item.text),
         onKey: (key, idx) => {
             const item = items[idx];
@@ -261,8 +281,7 @@ async function runEditEntry(sourceID, entryID) {
                 return runVaultContentsMenu(sourceID);
             } else if (key.name === "h") {
                 showingHidden = !showingHidden;
-                items = _createItems();
-                update(items.map(item => item.text));
+                recreateItems();
             } else if (key.name === "d") {
                 stop();
                 return deleteEntryProperty(sourceID, entryID, item.field.property, item.field.propertyType);

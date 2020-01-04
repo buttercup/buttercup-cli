@@ -4,13 +4,17 @@ function actualLength(str) {
     return stripANSI(str).length;
 }
 
-function padLine(line, length, char = " ") {
+function padLine(line, length, char = " ", right = true) {
     if (actualLength(line) >= length) {
         return line;
     }
-    let output = line;
+    let output = `${line}`;
     while (actualLength(output) < length) {
-        output += char;
+        if (right) {
+            output += char;
+        } else {
+            output = `${char}${output}`;
+        }
     }
     return output;
 }
