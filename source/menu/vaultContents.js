@@ -163,6 +163,30 @@ function createEntryScrollerItems(entryFacade, options = {}) {
     ];
 }
 
+async function deleteEntryProperty(sourceID, entryID, property, propertyType) {
+    const { performSaveSource } = require("./vault.js");
+    if (propertyType === "attribute") {
+        throw new Error("Attribute editing not implemented");
+    }
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const entry = source.workspace.archive.findEntryByID(entryID);
+    const action = await drawMenu(
+        `Are you sure that you would like to delete the property '${property}'?`,
+        [
+            { key: "y", text: "Delete the property" },
+            { key: "n", text: "Cancel deletion" }
+        ]
+    );
+    if (action !== "y") {
+        runEditEntry(sourceID, entryID);
+        return;
+    }
+    entry.deleteProperty(property);
+    await performSaveSource(source);
+    runEditEntry(sourceID, entryID);
+}
+
 async function editEntryValue(sourceID, entryID, property, propertyType, title, existingValue = "") {
     const { performSaveSource } = require("./vault.js");
     const newValue = await editInput(`${title}: `, existingValue);
@@ -222,7 +246,7 @@ async function runEditEntry(sourceID, entryID) {
                 } else {
                     throw new Error(`Unknown item type: ${item.type}`);
                 }
-            } else if (key.name === "e") {
+            } else if (key.name === "e" && item.type === "property") {
                 stop();
                 return editEntryValue(
                     sourceID,
@@ -239,6 +263,9 @@ async function runEditEntry(sourceID, entryID) {
                 showingHidden = !showingHidden;
                 items = _createItems();
                 update(items.map(item => item.text));
+            } else if (key.name === "d") {
+                stop();
+                return deleteEntryProperty(sourceID, entryID, item.field.property, item.field.propertyType);
             }
         },
         prefix: colourDim("(Edit = enter / e, Copy = c, Delete = d, Toggle Hidden = h, Cancel/Quit = q)"),
@@ -323,6 +350,9 @@ function runVaultContentsMenu(sourceID) {
                     }
                     items = createArchiveTree(archiveFacade, { openGroups });
                     update(items.map(item => item.text));
+                } else if (item.type === "entry") {
+                    stop();
+                    return runEditEntry(sourceID, item.id);
                 }
             } else if (key.name === "n") {
                 stop();
