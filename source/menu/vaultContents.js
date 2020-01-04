@@ -1,6 +1,7 @@
 const figures = require("figures");
 const isWindows = require("is-windows");
-const { FIELD_VALUE_TYPE_PASSWORD } = require("@buttercup/facades");
+const { Entry } = require("buttercup");
+const { FIELD_VALUE_TYPE_NOTE, FIELD_VALUE_TYPE_OTP, FIELD_VALUE_TYPE_PASSWORD, FIELD_VALUE_TYPE_TEXT } = require("@buttercup/facades");
 const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveManagement.js");
 const { showScroller } = require("../ui/scroller.js");
 const { colourDim, colourOption } = require("./misc.js");
@@ -9,7 +10,77 @@ const { editInput, getInput } = require("../library/input.js");
 const { padLine } = require("../library/format.js");
 
 const MAX_ENTRY_TITLE_LENGTH = 40;
+const NEW_PROPERTY_SUGGESTIONS = [
+    "email",
+    "hotp",
+    "id",
+    "key",
+    "mobile",
+    "otp",
+    "phone",
+    "pin",
+    "secret",
+    "ssh_private_key",
+    "ssh_public_key",
+    "telephone",
+    "token",
+    "totp",
+    "url"
+];
 const SCROLLER_VISIBLE_LINES = 8;
+
+async function addEntryProperty(sourceID, entryID) {
+    const { performSaveSource } = require("./vault.js");
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const entry = source.workspace.archive.findEntryByID(entryID);
+    const valueTypeAction = await drawMenu(
+        "Property type:",
+        [
+            { key: "t", text: "Plain / Text" },
+            { key: "n", text: "Note" },
+            { key: "p", text: "Password (Secret)" },
+            { key: "o", text: "OTP (One Time Password) URI" }
+        ]
+    );
+    let valueType;
+    switch (valueTypeAction) {
+        case "t":
+            valueType = FIELD_VALUE_TYPE_TEXT;
+            break;
+        case "n":
+            valueType = FIELD_VALUE_TYPE_NOTE;
+            break;
+        case "p":
+            valueType = FIELD_VALUE_TYPE_PASSWORD;
+            break;
+        case "o":
+            valueType = FIELD_VALUE_TYPE_OTP;
+            break;
+        default:
+            throw new Error(`Unknown property type menu selection: ${valueTypeAction}`);
+    }
+    const property = await getInput("Property name: ", NEW_PROPERTY_SUGGESTIONS);
+    const value = await getInput("Property value: ");
+    const existingValue = entry.getProperty(property);
+    if (typeof existingValue !== "undefined") {
+        const action = await drawMenu(
+            "Property with this name already exists - what would you like to do?",
+            [
+                { key: "o", text: "Override existing value" },
+                { key: "c", text: "Cancel value change" }
+            ]
+        );
+        if (action !== "o") {
+            runEditEntry(sourceID, entryID);
+            return;
+        }
+    }
+    entry.setProperty(property, value);
+    entry.setAttribute(`${Entry.Attributes.FieldTypePrefix}${property}`, valueType);
+    await performSaveSource(source);
+    runEditEntry(sourceID, entryID);
+}
 
 function createArchiveTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } = {}) {
     return [
@@ -136,7 +207,8 @@ async function runEditEntry(sourceID, entryID) {
             const item = items[idx];
             if (key.name === "return") {
                 if (item.type === "add-property") {
-                    // @todo add new
+                    stop();
+                    return addEntryProperty(sourceID, entryID);
                 } else if (item.type === "property") {
                     stop();
                     return editEntryValue(
