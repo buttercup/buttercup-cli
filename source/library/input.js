@@ -16,7 +16,7 @@ async function getPassword(prompt) {
     await sleep(50);
     process.stdout.write(prompt);
     return new Promise((resolve, reject) => {
-        pw(password => {
+        pw("", password => {
             if (!password) {
                 return reject(new Error("Empty password entered"));
             }
