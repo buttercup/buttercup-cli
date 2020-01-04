@@ -5,7 +5,7 @@ const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveM
 const { showScroller } = require("../ui/scroller.js");
 const { colourDim, colourOption } = require("./misc.js");
 const { drawMenu } = require("./menu.js");
-const { getInput } = require("../library/input.js");
+const { editInput, getInput } = require("../library/input.js");
 const { padLine } = require("../library/format.js");
 
 const MAX_ENTRY_TITLE_LENGTH = 40;
@@ -77,7 +77,8 @@ function createEntryScrollerItems(entryFacade, options = {}) {
             const value = field.value ? field.value : "";
             output.push({
                 text: `${colourOption(padLine(title, keyLen))}: ${isHidden ? colourDim("(hidden)") : value}`,
-                type: "property"
+                type: "property",
+                field
             });
         }
         return output;
@@ -89,6 +90,25 @@ function createEntryScrollerItems(entryFacade, options = {}) {
             type: "add-property"
         }
     ];
+}
+
+async function editEntryValue(sourceID, entryID, property, propertyType, title, existingValue = "") {
+    const { performSaveSource } = require("./vault.js");
+    const newValue = await editInput(`${title}: `, existingValue);
+    if (newValue === null) {
+        // Edit cancelled
+        runEditEntry(sourceID, entryID);
+        return;
+    }
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const entry = source.workspace.archive.findEntryByID(entryID);
+    if (propertyType === "attribute") {
+        throw new Error("Attribute editing not implemented");
+    }
+    entry.setProperty(property, newValue);
+    await performSaveSource(source);
+    runEditEntry(sourceID, entryID);
 }
 
 function generateIndent(count) {
@@ -118,12 +138,28 @@ async function runEditEntry(sourceID, entryID) {
                 if (item.type === "add-property") {
                     // @todo add new
                 } else if (item.type === "property") {
-                    // @todo edit property
+                    stop();
+                    return editEntryValue(
+                        sourceID,
+                        entryID,
+                        item.field.property,
+                        item.field.propertyType,
+                        item.field.title || item.field.property,
+                        item.field.value
+                    );
                 } else {
                     throw new Error(`Unknown item type: ${item.type}`);
                 }
             } else if (key.name === "e") {
-                // @todo edit property
+                stop();
+                return editEntryValue(
+                    sourceID,
+                    entryID,
+                    item.field.property,
+                    item.field.propertyType,
+                    item.field.title || item.field.property,
+                    item.field.value
+                );
             } else if (key.name === "q") {
                 stop();
                 return runVaultContentsMenu(sourceID);
