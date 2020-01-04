@@ -1,12 +1,17 @@
 const figures = require("figures");
 const isWindows = require("is-windows");
+const { FIELD_VALUE_TYPE_PASSWORD } = require("@buttercup/facades");
 const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveManagement.js");
 const { showScroller } = require("../ui/scroller.js");
-const { colourDim } = require("./misc.js");
+const { colourDim, colourOption } = require("./misc.js");
 const { drawMenu } = require("./menu.js");
 const { getInput } = require("../library/input.js");
+const { padLine } = require("../library/format.js");
 
-function createTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } = {}) {
+const MAX_ENTRY_TITLE_LENGTH = 40;
+const SCROLLER_VISIBLE_LINES = 8;
+
+function createArchiveTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } = {}) {
     return [
         ...(currentGroup === "0" ? [
             {
@@ -28,7 +33,7 @@ function createTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } 
                     containerID: group.id
                 });
                 if (openGroups.includes(group.id)) {
-                    groups.push(...createTree(facade, {
+                    groups.push(...createArchiveTree(facade, {
                         currentGroup: group.id,
                         indent: indent + 1,
                         openGroups
@@ -53,6 +58,39 @@ function createTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } 
     ];
 }
 
+function createEntryScrollerItems(entryFacade, options = {}) {
+    const { showingHidden = false } = options;
+    const keyLen = entryFacade.fields.reduce((len, field) => {
+        if (field.propertyType === "property") {
+            const title = field.title || field.property;
+            return Math.min(
+                Math.max(len, title.length),
+                MAX_ENTRY_TITLE_LENGTH
+            );
+        }
+        return len;
+    }, 0);
+    const items = entryFacade.fields.reduce((output, field) => {
+        if (field.propertyType === "property") {
+            const title = field.title || field.property;
+            const isHidden = field.valueType === FIELD_VALUE_TYPE_PASSWORD && !showingHidden;
+            const value = field.value ? field.value : "";
+            output.push({
+                text: `${colourOption(padLine(title, keyLen))}: ${isHidden ? colourDim("(hidden)") : value}`,
+                type: "property"
+            });
+        }
+        return output;
+    }, []);
+    return [
+        ...items,
+        {
+            text: colourDim(`${figures.arrowRight} add property`),
+            type: "add-property"
+        }
+    ];
+}
+
 function generateIndent(count) {
     let output = "",
         indentLeft = count;
@@ -61,6 +99,58 @@ function generateIndent(count) {
         output += "  ";
     }
     return output;
+}
+
+async function runEditEntry(sourceID, entryID) {
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const archiveFacade = createArchiveFacade(source.workspace.archive);
+    const entryFacade = archiveFacade.entries.find(item => item.id === entryID);
+    // Scroller
+    const _createItems = () => createEntryScrollerItems(entryFacade, { showingHidden });
+    let showingHidden = false,
+        items = _createItems();
+    const { stop, update } = showScroller({
+        lines: items.map(item => item.text),
+        onKey: (key, idx) => {
+            const item = items[idx];
+            if (key.name === "return") {
+                if (item.type === "add-property") {
+                    // @todo add new
+                } else if (item.type === "property") {
+                    // @todo edit property
+                } else {
+                    throw new Error(`Unknown item type: ${item.type}`);
+                }
+            } else if (key.name === "e") {
+                // @todo edit property
+            } else if (key.name === "q") {
+                stop();
+                return runVaultContentsMenu(sourceID);
+            } else if (key.name === "h") {
+                showingHidden = !showingHidden;
+                items = _createItems();
+                update(items.map(item => item.text));
+            }
+        },
+        prefix: colourDim("(Edit = enter / e, Copy = c, Delete = d, Toggle Hidden = h, Cancel/Quit = q)"),
+        visibleLines: SCROLLER_VISIBLE_LINES
+    });
+}
+
+async function runNewEntry(sourceID, parentGroupID) {
+    const { performSaveSource } = require("./vault.js");
+    const entryTitle = await getInput("Entry title (empty for cancel): ");
+    if (!entryTitle) {
+        runVaultContentsMenu(sourceID);
+        return;
+    }
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const parent = source.workspace.archive.findGroupByID(parentGroupID);
+    const entry = parent.createEntry(entryTitle);
+    await performSaveSource(source);
+    runEditEntry(sourceID, entry.id);
 }
 
 async function runNewGroup(sourceID, parentGroupID) {
@@ -87,7 +177,7 @@ function runNewItemMenu(sourceID, parentGroupID, parentTitle) {
     ];
     if (parentGroupID != "0") {
         choices.push(
-            { key: "e", text: "New Entry", cb: () => {} }
+            { key: "e", text: "New Entry", cb: () => runNewEntry(sourceID, parentGroupID) }
         );
     }
     drawMenu(
@@ -110,9 +200,8 @@ function runVaultContentsMenu(sourceID) {
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
     const archiveFacade = createArchiveFacade(source.workspace.archive);
-    let items = createTree(archiveFacade),
+    let items = createArchiveTree(archiveFacade),
         openGroups = [];
-    // console.log(colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"));
     const { stop, update } = showScroller({
         lines: items.map(item => item.text),
         onKey: (key, idx) => {
@@ -124,19 +213,24 @@ function runVaultContentsMenu(sourceID) {
                     } else {
                         openGroups.push(item.id);
                     }
-                    items = createTree(archiveFacade, { openGroups });
+                    items = createArchiveTree(archiveFacade, { openGroups });
                     update(items.map(item => item.text));
                 }
             } else if (key.name === "n") {
                 stop();
                 return runNewItemMenu(sourceID, item.containerID, item.title);
+            } else if (key.name === "e") {
+                if (item.type === "entry") {
+                    stop();
+                    return runEditEntry(sourceID, item.id);
+                }
             } else if (key.name === "q") {
                 stop();
                 return runVaultAccessMenu(sourceID);
             }
         },
         prefix: colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"),
-        visibleLines: 8
+        visibleLines: SCROLLER_VISIBLE_LINES
     });
 }
 

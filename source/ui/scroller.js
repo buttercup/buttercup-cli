@@ -3,14 +3,10 @@ const boxen = require("boxen");
 const cliSize = require("cli-size");
 const cliResize = require("cli-resize");
 const chalk = require("chalk");
-const stripANSI = require("strip-ansi");
 const { onKey } = require("../library/key.js");
+const { actualLength, padLine } = require("../library/format.js");
 
 const NOOP = () => {}
-
-function actualLength(str) {
-    return stripANSI(str).length;
-}
 
 function normaliseSize(size) {
     return typeof size.columns === "number"
@@ -18,17 +14,6 @@ function normaliseSize(size) {
             width: size.columns,
             height: size.rows
         } : size;
-}
-
-function padLine(line, length, char = " ") {
-    if (actualLength(line) >= length) {
-        return line;
-    }
-    let output = line;
-    while (actualLength(output) < length) {
-        output += char;
-    }
-    return output;
 }
 
 function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, prefix = "", visibleLines = 5 }) {
