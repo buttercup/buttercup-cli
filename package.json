@@ -4,7 +4,7 @@
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "bin": {
-    "bcup": "./source/index.js"
+    "bcupi": "./source/index.js"
   },
   "scripts": {
     "start": "node source/index.js",
