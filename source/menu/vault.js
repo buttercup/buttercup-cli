@@ -21,6 +21,17 @@ async function performLockSource(sourceID) {
     runVaultAccessMenu(sourceID);
 }
 
+async function performSaveSource(source) {
+    const spinner = ora(`Saving '${source.name}'`).start();
+    try {
+        await source.workspace.save();
+        spinner.succeed(`Saved '${source.name}'`);
+    } catch (err) {
+        spinner.fail(`Failed saving '${source.name}': ${err.message}`);
+        throw err;
+    }
+}
+
 async function performUnlockSource(sourceID) {
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
@@ -146,6 +157,7 @@ function runVaultAdditionMenu() {
 }
 
 module.exports = {
+    performSaveSource,
     runVaultAccessMenu,
     runVaultAdditionMenu
 };

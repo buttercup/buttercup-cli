@@ -1,5 +1,6 @@
 const { ArchiveManager, ArchiveSource, Credentials } = require("buttercup");
 const { createArchiveFacade } = require("@buttercup/facades");
+const ora = require("ora");
 const LocalFileStorage = require("./LocalFileStorage.js");
 
 let __archiveManager = null;

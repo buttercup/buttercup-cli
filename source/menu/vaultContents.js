@@ -4,6 +4,7 @@ const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveM
 const { showScroller } = require("../ui/scroller.js");
 const { colourDim } = require("./misc.js");
 const { drawMenu } = require("./menu.js");
+const { getInput } = require("../library/input.js");
 
 function createTree(facade, { currentGroup = "0", indent = 1, openGroups = [] } = {}) {
     return [
@@ -62,12 +63,27 @@ function generateIndent(count) {
     return output;
 }
 
+async function runNewGroup(sourceID, parentGroupID) {
+    const { performSaveSource } = require("./vault.js");
+    const groupTitle = await getInput("Group title (empty for cancel): ");
+    if (!groupTitle) {
+        runVaultContentsMenu(sourceID);
+        return;
+    }
+    const archiveManager = getSharedManager();
+    const source = archiveManager.getSourceForID(sourceID);
+    const parent = parentGroupID == "0" ? source.workspace.archive : source.workspace.archive.findGroupByID(parentGroupID);
+    parent.createGroup(groupTitle);
+    await performSaveSource(source);
+    runVaultContentsMenu(sourceID);
+}
+
 function runNewItemMenu(sourceID, parentGroupID, parentTitle) {
     const { runVaultAccessMenu } = require("./vault.js");
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
     const choices = [
-        { key: "g", text: "New Group", cb: () => {} }
+        { key: "g", text: "New Group", cb: () => runNewGroup(sourceID, parentGroupID) }
     ];
     if (parentGroupID != "0") {
         choices.push(
