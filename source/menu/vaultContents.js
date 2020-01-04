@@ -112,7 +112,7 @@ function runVaultContentsMenu(sourceID) {
     const archiveFacade = createArchiveFacade(source.workspace.archive);
     let items = createTree(archiveFacade),
         openGroups = [];
-    console.log(colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"));
+    // console.log(colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"));
     const { stop, update } = showScroller({
         lines: items.map(item => item.text),
         onKey: (key, idx) => {
@@ -135,6 +135,7 @@ function runVaultContentsMenu(sourceID) {
                 return runVaultAccessMenu(sourceID);
             }
         },
+        prefix: colourDim("(Open = enter, Delete = d, Move = m, New Group/Entry = n, Edit = e, Cancel/Quit = q)"),
         visibleLines: 8
     });
 }

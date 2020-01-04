@@ -31,7 +31,7 @@ function padLine(line, length, char = " ") {
     return output;
 }
 
-function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, visibleLines = 5 }) {
+function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, prefix = "", visibleLines = 5 }) {
     let lines = linesRaw;
     if (actualLength(lines) <= 0) {
         throw new Error("Cannot show empty scroller");
@@ -55,7 +55,8 @@ function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, visibleLines = 5
             rawOutputLines.push("");
         }
         const innerText = rawOutputLines.join("\n");
-        logUpdate(boxen(innerText, { padding: 0 }));
+        const boxComponent = boxen(innerText, { padding: 0 });
+        logUpdate(`${prefix ? prefix + "\n" : ""}${boxComponent}`);
     };
     const update = (newLines = lines) => {
         lines = newLines;
