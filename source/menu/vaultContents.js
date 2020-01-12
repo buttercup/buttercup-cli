@@ -1,7 +1,7 @@
 const figures = require("figures");
 const isWindows = require("is-windows");
 const { Entry } = require("buttercup");
-const { FIELD_VALUE_TYPE_NOTE, FIELD_VALUE_TYPE_OTP, FIELD_VALUE_TYPE_PASSWORD, FIELD_VALUE_TYPE_TEXT } = require("@buttercup/facades");
+const { ENTRY_TYPE_LOGIN, ENTRY_TYPE_NOTE, ENTRY_TYPE_SSHKEY, ENTRY_TYPE_WEBSITE, FIELD_VALUE_TYPE_NOTE, FIELD_VALUE_TYPE_OTP, FIELD_VALUE_TYPE_PASSWORD, FIELD_VALUE_TYPE_TEXT } = require("@buttercup/facades");
 const { createArchiveFacade, getSharedManager } = require("../buttercup/archiveManagement.js");
 const { showScroller } = require("../ui/scroller.js");
 const { colourDim, colourOption } = require("./misc.js");
@@ -314,10 +314,37 @@ async function runNewEntry(sourceID, parentGroupID) {
         runVaultContentsMenu(sourceID);
         return;
     }
+    const entryTypeAction = await drawMenu(
+        "Entry type:",
+        [
+            { key: "l", text: "Login (default)" },
+            { key: "n", text: "Note" },
+            { key: "s", text: "SSH key pair" },
+            { key: "w", text: "Website" }
+        ]
+    );
+    let entryType;
+    switch (entryTypeAction) {
+        case "l":
+            entryType = ENTRY_TYPE_LOGIN;
+            break;
+        case "n":
+            entryType = ENTRY_TYPE_NOTE;
+            break;
+        case "s":
+            entryType = ENTRY_TYPE_SSHKEY;
+            break;
+        case "w":
+            entryType = ENTRY_TYPE_WEBSITE;
+            break;
+        default:
+            throw new Error(`Unknown entry type menu selection: ${valueTypeAction}`);
+    }
     const archiveManager = getSharedManager();
     const source = archiveManager.getSourceForID(sourceID);
     const parent = source.workspace.archive.findGroupByID(parentGroupID);
     const entry = parent.createEntry(entryTitle);
+    entry.setAttribute(Entry.Attributes.FacadeType, entryType);
     await performSaveSource(source);
     runEditEntry(sourceID, entry.id);
 }

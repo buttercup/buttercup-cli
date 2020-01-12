@@ -1,7 +1,7 @@
 const OTPAuth = require("otpauth");
 const { FIELD_VALUE_TYPE_NOTE, FIELD_VALUE_TYPE_OTP, FIELD_VALUE_TYPE_PASSWORD, FIELD_VALUE_TYPE_TEXT } = require("@buttercup/facades");
 
-function renderEntryValue(value, valueType) {
+function renderEntryValue(value = "", valueType) {
     const { colourError, colourFigure } = require("../menu/misc.js");
     const { renderProgress } = require("./progress.js");
     const { padLine } = require("../library/format.js");
@@ -23,7 +23,7 @@ function renderEntryValue(value, valueType) {
         }
         case FIELD_VALUE_TYPE_NOTE:
             const [firstLine] = value.split("\n");
-            text = `${firstLine}\u2026`;
+            text = firstLine;
             break;
         case FIELD_VALUE_TYPE_PASSWORD:
             /* falls-through */

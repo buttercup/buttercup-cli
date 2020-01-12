@@ -26,13 +26,17 @@ function showScroller({ lines: linesRaw, onKey: onKeyCB = NOOP, prefix = "", vis
         active = true,
         currentTerminalSize = normaliseSize(cliSize());
     const render = () => {
-        const maxLineLength = currentTerminalSize.width - 2 - 2; // - (border) - (padding)
+        const maxBoxInnerWidth = currentTerminalSize.width - 2;
+        const maxLineLength = maxBoxInnerWidth - 2; // - (border) - (padding)
         const rawOutputLines = lines
             .slice(scrollPosition, scrollPosition + visibleLines)
             .map((line, idx) => {
+                const preparedLine = line
+                    .replace(/[\t\r\n]/g, "")
+                    .substring(0, maxLineLength);
                 const newLine = padLine(
-                    ` ${line.slice(0, maxLineLength)} `,
-                    maxLineLength
+                    ` ${preparedLine} `,
+                    maxBoxInnerWidth
                 );
                 return idx === selectedLineInView ? chalk.inverse(newLine) : newLine;
             });
