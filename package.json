@@ -4,12 +4,15 @@
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "bin": {
-    "bcup": "./source/index.js"
+    "bcup": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc && chmod +x ./dist/index.js",
     "test": "echo \"None yet...\""
   },
+  "files": [
+    "dist/**/*.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/perry-mitchell/buttercup-cli.git"
