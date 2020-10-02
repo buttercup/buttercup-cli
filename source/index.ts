@@ -5,6 +5,8 @@ import chalk from "chalk";
 import boxen from "boxen";
 import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
+import { ArgV } from "./types";
+import { add as addVault } from "./commands/add";
 const packageInfo = require("../package.json");
 
 function help() {
@@ -27,14 +29,14 @@ function help() {
 
 async function init() {
     markInstalledVersion();
-    const argv = minimist(process.argv.slice(2));
+    const argv: ArgV = minimist(process.argv.slice(2));
     // Check arguments
     if (argv.help || argv.h) {
         return help();
     } else if (argv.version || argv.v) {
         return version();
     } else if (argv._ && argv._.length > 0) {
-        // Todo
+        return routeCommand(argv);
     }
     noArgs();
 }
@@ -57,11 +59,21 @@ function noArgs() {
     console.log("");
 }
 
+function routeCommand(argv: ArgV) {
+    const [command] = argv._ || [];
+    switch (command) {
+        case "add":
+            return addVault(argv);
+        default:
+            throw new Error(`Unknown command: ${command}`);
+    }
+}
+
 function version() {
     console.log(packageInfo.version);
 }
 
-init().catch(err => {
+init().catch((err: Error) => {
     logError(err);
     process.exit(1);
 });
