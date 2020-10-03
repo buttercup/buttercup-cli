@@ -5,3 +5,18 @@ export interface ArgV {
     h?: boolean;
     v?: boolean;
 }
+
+export interface ArgVAddVault extends ArgV {
+    type?: DatasourceType
+}
+
+export enum DatasourceType {
+    File = "file",
+    MyButtercup = "mybuttercup"
+}
+
+export interface RSAKeyPair {
+    public: string;
+    private: string;
+    secret: string;
+}
