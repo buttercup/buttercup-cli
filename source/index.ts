@@ -7,6 +7,7 @@ import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
 import { ArgV } from "./types";
 import { add as addVault } from "./commands/add";
+import { boot as bootDaemon } from "./daemon/index";
 const packageInfo = require("../package.json");
 
 function help() {
@@ -31,6 +32,9 @@ async function init() {
     markInstalledVersion();
     const argv: ArgV = minimist(process.argv.slice(2));
     // Check arguments
+    if (argv.daemon) {
+        return bootDaemon();
+    }
     if (argv.help || argv.h) {
         return help();
     } else if (argv.version || argv.v) {

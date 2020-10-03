@@ -9,7 +9,7 @@ import {
     DAEMON_EXIT_NO_TTL
 } from "../symbols";
 
-async function boot() {
+export async function boot() {
     checkEnv();
     // Check if running
     const alreadyRunning = await daemonRunning();
@@ -38,7 +38,7 @@ function checkEnv() {
     }
 }
 
-boot().catch(err => {
-    console.error(err);
-    process.exit(1);
-});
+// boot().catch(err => {
+//     console.error(err);
+//     process.exit(1);
+// });

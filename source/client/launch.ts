@@ -15,14 +15,16 @@ export async function launchDaemon() {
     const keyPair = await generateKeyPair();
     await storeKeys(keyPair);
     // Prepare process
-    const daemonScript = path.resolve(__dirname, "../daemon/index.js");
-    const proc = childProcess.spawn(daemonScript, [], {
+    const entry = path.resolve(__dirname, "../index.js");
+    const proc = childProcess.spawn("node", [entry, "--daemon"], {
         detached: true,
         env: {
+            PATH: process.env.PATH,
             PUBLIC_KEY: keyPair.public,
             PRIVATE_KEY: keyPair.private,
             TTL: ms(getDaemonTTL())
         },
+        // stdio: "inherit", // debugging
         windowsHide: true
     });
     // Wait for daemon

@@ -13,9 +13,12 @@ export async function startDaemon() {
             ttl: process.env.TTL
         }));
     });
-    __server = __app.listen(DAEMON_PORT);
+    __server = __app.listen(DAEMON_PORT, () => {
+        console.log(`Listening on ${DAEMON_PORT}`);
+    });
 }
 
 export async function stopDaemon() {
+    console.log("Stopping daemon");
     __server.close();
 }

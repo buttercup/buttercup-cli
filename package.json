@@ -7,7 +7,7 @@
     "bcup": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod +x ./dist/index.js && chmod +x ./dist/daemon/index.js",
+    "build": "tsc && chmod +x ./dist/index.js",
     "test": "echo \"None yet...\""
   },
   "files": [

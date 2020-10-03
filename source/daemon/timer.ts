@@ -12,7 +12,7 @@ export function renewTimer() {
     __timer = setTimeout(onTimerExpire, __timerDelay);
 }
 
-export function startShutdownTimer(delay) {
-    __timerDelay = delay;
+export function startShutdownTimer(delayMS: number) {
+    __timerDelay = delayMS;
     __timer = setTimeout(onTimerExpire, __timerDelay);
 }

@@ -1,5 +1,6 @@
 export interface ArgV {
     _?: Array<string>;
+    daemon?: boolean;
     help?: boolean;
     version?: boolean;
     h?: boolean;
