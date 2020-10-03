@@ -18,5 +18,4 @@ export enum DatasourceType {
 export interface RSAKeyPair {
     public: string;
     private: string;
-    secret: string;
 }

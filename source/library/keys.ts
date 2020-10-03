@@ -4,10 +4,12 @@ import crypto from "crypto";
 import randomString from "crypto-random-string";
 import userHome from "user-home";
 import pify from "pify";
+import createMode from "stat-mode";
 import { RSAKeyPair } from "../types";
 
 const mkdir = pify(fs.mkdir);
 const readFile = pify(fs.readFile);
+const stat = pify(fs.stat);
 const writeFile = pify(fs.writeFile);
 
 export function generateKeyPair(): Promise<RSAKeyPair> {
@@ -23,17 +25,14 @@ export function generateKeyPair(): Promise<RSAKeyPair> {
                 },
                 privateKeyEncoding: {
                     type: "pkcs8",
-                    format: "pem",
-                    cipher: "aes-256-cbc",
-                    passphrase: secret
+                    format: "pem"
                 }
             },
             (err: Error, pubKey: string, privKey: string) => {
                 if (err) return reject(err);
                 resolve({
                     public: pubKey,
-                    private: privKey,
-                    secret
+                    private: privKey
                 });
             }
         );
@@ -60,8 +59,21 @@ export async function storeKeys(keyPair: RSAKeyPair) {
     await mkdir(keyPath, {
         recursive: true
     });
-    await writeFile(path.join(keyPath, "daemon.bcupkp"), JSON.stringify({
+    const filename = path.join(keyPath, "daemon.bcupkp");
+    await writeFile(filename, JSON.stringify({
         keys: keyPair,
         ts: (new Date()).toISOString()
     }));
+    // Change permissions
+    const fileStat = await stat(filename);
+    const mode = createMode(fileStat);
+    mode.owner.read = true;
+    mode.owner.write = true;
+    mode.owner.execute = false;
+    mode.group.read = false;
+    mode.group.write = false;
+    mode.group.execute = false;
+    mode.others.read = false;
+    mode.others.write = false;
+    mode.others.execute = false;
 }
