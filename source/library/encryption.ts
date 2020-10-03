@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import { RSAKeyPair } from "../types";
 
+// Encryption based off this article: https://www.sohamkamani.com/nodejs/rsa-encryption/
+
 export async function decryptContent(content: string, keyPair: RSAKeyPair): Promise<string> {
     const decryptedData = crypto.privateDecrypt(
         {

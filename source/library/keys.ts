@@ -12,6 +12,8 @@ const readFile = pify(fs.readFile);
 const stat = pify(fs.stat);
 const writeFile = pify(fs.writeFile);
 
+// Key generation based off this article: https://www.sohamkamani.com/nodejs/rsa-encryption/
+
 export function generateKeyPair(): Promise<RSAKeyPair> {
     return new Promise((resolve, reject) => {
         const secret = generateKeyPairSecret();
