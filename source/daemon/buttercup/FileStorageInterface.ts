@@ -24,13 +24,19 @@ export class FileStorageInterface extends StorageInterface {
     }
 
     async removeKey(name: string): Promise<void> {
-        const content = await this._getContent();
+        let content = await this._getContent();
+        if (!content) {
+            content = {};
+        }
         delete content[name];
         await writeFile(this.path, JSON.stringify(content));
     }
 
     async setValue(name: string, value: string): Promise<void> {
-        const content = await this._getContent();
+        let content = await this._getContent();
+        if (!content) {
+            content = {};
+        }
         content[name] = value;
         await writeFile(this.path, JSON.stringify(content));
     }

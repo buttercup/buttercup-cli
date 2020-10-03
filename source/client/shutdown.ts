@@ -1,4 +1,4 @@
-import { daemonRunning, sendMessage } from "../library/daemon";
+import { daemonRunning, sendMessage } from "./request";
 import { getKeys } from "../library/keys";
 import { DaemonCommand } from "../types";
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { daemonRunning } from "../library/daemon";
+import { daemonRunning } from "../client/request";
 import { startDaemon } from "./app";
 import { startShutdownTimer } from "./timer";
 import { initialise as initialiseBcup } from "./buttercup/vaultMgmt";

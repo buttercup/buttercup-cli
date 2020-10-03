@@ -13,9 +13,10 @@ let __vaultManager: VaultManager;
 
 export const initialise = init;
 
-export async function addVault(payload: AddVaultPayload) {
+export async function addVault(payload: AddVaultPayload): Promise<VaultSource> {
     const { type, masterPassword, name, initialise } = payload;
     const manager = getVaultManager();
+    let source = null;
     if (type === DatasourceType.File) {
         const { path: vaultPath } = payload;
         const creds = Credentials.fromDatasource({
@@ -23,7 +24,7 @@ export async function addVault(payload: AddVaultPayload) {
             path: vaultPath
         }, masterPassword);
         const credStr = await creds.toSecureString();
-        const source = new VaultSource(name, type, credStr);
+        source = new VaultSource(name, type, credStr);
         await manager.addSource(source);
         if (initialise) {
             await source.unlock(creds, {
@@ -35,6 +36,7 @@ export async function addVault(payload: AddVaultPayload) {
     } else {
         throw new Error(`Invalid datasource type: ${type}`);
     }
+    return source;
 }
 
 export function getVaultManager(): VaultManager {

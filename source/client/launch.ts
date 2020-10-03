@@ -3,7 +3,7 @@ import childProcess from "child_process";
 import ms from "ms";
 import { getDaemonTTL } from "../library/config";
 import { generateKeyPair, storeKeys } from "../library/keys";
-import { daemonRunning } from "../library/daemon";
+import { daemonRunning } from "./request";
 
 const WAIT_CHECK = 100;
 const WAIT_MAX = 2000;
@@ -36,7 +36,6 @@ export async function launchDaemon() {
 async function waitForDaemon(startTime = Date.now()) {
     const running = await daemonRunning();
     if (running) return;
-    console.log("WAIT");
     const waitTime = Date.now() - startTime;
     if (waitTime > WAIT_MAX) {
         throw new Error(`Timed-out after ${WAIT_MAX}ms waiting for daemon to launch`);

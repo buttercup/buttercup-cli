@@ -9,7 +9,7 @@ import { ArgV } from "./types";
 import { add as addVault } from "./commands/add";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
-import { daemonRunning } from "./library/daemon";
+import { daemonRunning } from "./client/request";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -29,7 +29,7 @@ function help() {
     console.log("\tadd\t\t\tAdd a new vault");
     console.log("\tlock\t\t\tLock a vault or vaults");
     console.log("\tremove\t\t\tRemove a vault");
-    console.log("\tshutdown\t\t\tShutdown the Daemon, if running");
+    console.log("\tshutdown\t\tShutdown the Daemon, if running");
     console.log("\tssh\t\t\tUse protected SSH keys");
     console.log("\tunlock\t\t\tUnlock a vault or vaults");
 }

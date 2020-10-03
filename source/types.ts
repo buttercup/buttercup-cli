@@ -6,6 +6,10 @@ export interface AddVaultPayload {
     type: DatasourceType;
 }
 
+export interface AddVaultResponse {
+    sourceID: string;
+}
+
 export interface ArgV {
     _?: Array<string>;
     daemon?: boolean;
@@ -21,6 +25,7 @@ export interface ArgVAddVault extends ArgV {
 }
 
 export enum DaemonCommand {
+    AddVault = "add-vault",
     Shutdown = "shutdown"
 }
 
@@ -31,7 +36,7 @@ export interface DaemonRequest {
 
 export interface DaemonResponse {
     error?: string;
-    payload?: Object;
+    payload?: AddVaultResponse;
     status: DaemonResponseStatus;
 }
 

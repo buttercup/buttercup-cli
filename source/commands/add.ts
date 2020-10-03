@@ -1,7 +1,9 @@
 import inquirer from "inquirer";
 import { launchDaemon } from "../client/launch";
+import { sendMessage } from "../client/request";
 import { getMasterPassword } from "../library/password";
-import { AddVaultPayload, ArgVAddVault, DatasourceType } from "../types";
+import { getKeys } from "../library/keys";
+import { AddVaultPayload, ArgVAddVault, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
@@ -44,7 +46,8 @@ export async function add(argv: ArgVAddVault) {
         },
         when: (answers: AddVaultAnswers) =>
             answers.type === DatasourceType.File &&
-            !initialFilePath
+            !initialFilePath,
+        filter: (value: string) => /\.bcup$/i.test(value) ? value : `${value}.bcup`
     });
     prompts.push({
         type: "input",
@@ -83,4 +86,14 @@ export async function add(argv: ArgVAddVault) {
 async function addVault(payload: AddVaultPayload) {
     // Launch daemon
     await launchDaemon();
+    // Request addition
+    const keys = await getKeys();
+    const response = await sendMessage({
+        type: DaemonCommand.AddVault,
+        payload
+    }, keys);
+    if (response.status !== DaemonResponseStatus.OK) {
+        throw new Error(`Failed adding vault: ${response.error || "Unknown error"}`);
+    }
+    console.log(`Vault added: ${payload.name} (${response.payload.sourceID})`);
 }

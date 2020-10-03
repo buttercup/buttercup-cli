@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { decryptContent, encryptContent } from "./encryption";
+import { decryptContent, encryptContent } from "../library/encryption";
 import { DAEMON_PORT, DAEMON_REQUEST_TIMEOUT } from "../symbols";
 import { DaemonRequest, DaemonResponse, RSAKeyPair } from "../types";
 
@@ -28,6 +28,7 @@ export async function sendMessage(request: DaemonRequest, keys: RSAKeyPair): Pro
     if (!response.ok) {
         throw new Error(`Bad response from Daemon: ${response.status} ${response.statusText}`);
     }
-    const decrypted = await decryptContent(response.body, keys);
+    const responseBody = await response.text();
+    const decrypted = await decryptContent(responseBody, keys);
     return JSON.parse(decrypted) as DaemonResponse;
 }
