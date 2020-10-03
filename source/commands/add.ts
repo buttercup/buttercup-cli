@@ -1,16 +1,10 @@
 import inquirer from "inquirer";
 import { launchDaemon } from "../client/launch";
 import { getMasterPassword } from "../library/password";
-import { ArgVAddVault, DatasourceType } from "../types";
+import { AddVaultPayload, ArgVAddVault, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
-    path?: string;
-    type: DatasourceType;
-}
-export interface AddVaultPayload {
-    initialise?: boolean;
-    masterPassword: string;
     path?: string;
     type: DatasourceType;
 }

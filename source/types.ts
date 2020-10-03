@@ -1,3 +1,10 @@
+export interface AddVaultPayload {
+    initialise?: boolean;
+    masterPassword: string;
+    path?: string;
+    type: DatasourceType;
+}
+
 export interface ArgV {
     _?: Array<string>;
     daemon?: boolean;
@@ -9,6 +16,26 @@ export interface ArgV {
 
 export interface ArgVAddVault extends ArgV {
     type?: DatasourceType
+}
+
+export enum DaemonCommand {
+    Shutdown = "shutdown"
+}
+
+export interface DaemonRequest {
+    type: DaemonCommand;
+    payload?: AddVaultPayload;
+}
+
+export interface DaemonResponse {
+    error?: string;
+    payload?: Object;
+    status: DaemonResponseStatus;
+}
+
+export enum DaemonResponseStatus {
+    Error = "error",
+    OK = "ok"
 }
 
 export enum DatasourceType {

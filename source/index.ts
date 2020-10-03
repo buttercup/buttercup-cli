@@ -7,8 +7,13 @@ import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
 import { ArgV } from "./types";
 import { add as addVault } from "./commands/add";
+import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
+import { daemonRunning } from "./library/daemon";
 const packageInfo = require("../package.json");
+
+const OFFLINE = chalk.red("OFFLINE");
+const ONLINE = chalk.green("ONLINE ");
 
 function help() {
     console.log("Usage: bcup <command> [options]");
@@ -42,7 +47,7 @@ async function init() {
     } else if (argv._ && argv._.length > 0) {
         return routeCommand(argv);
     }
-    noArgs();
+    await noArgs();
 }
 
 function logo() {
@@ -57,20 +62,30 @@ function logo() {
     console.log("");
 }
 
-function noArgs() {
+async function noArgs() {
     logo();
+    await status();
     console.log(`No arguments: Run ${chalk.bold("bcup --help")} for information on how to use this application.`);
     console.log("");
 }
 
-function routeCommand(argv: ArgV) {
+async function routeCommand(argv: ArgV) {
     const [command] = argv._ || [];
     switch (command) {
         case "add":
             return addVault(argv);
+        case "shutdown":
+            return shutdownDaemon();
         default:
             throw new Error(`Unknown command: ${command}`);
     }
+}
+
+async function status() {
+    const daemonAlive = await daemonRunning();
+    console.log("Status:")
+    console.log("\tDaemon\t\t\t", `[${daemonAlive ? ONLINE : OFFLINE}]`);
+    console.log();
 }
 
 function version() {

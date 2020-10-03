@@ -24,18 +24,19 @@ export async function launchDaemon() {
             PRIVATE_KEY: keyPair.private,
             TTL: ms(getDaemonTTL())
         },
-        // stdio: "inherit", // debugging
+        stdio: "inherit", // debugging
         windowsHide: true
     });
-    // Wait for daemon
-    await waitForDaemon();
     // Detach
     proc.unref();
+    // Wait for daemon
+    await waitForDaemon();
 }
 
 async function waitForDaemon(startTime = Date.now()) {
     const running = await daemonRunning();
     if (running) return;
+    console.log("WAIT");
     const waitTime = Date.now() - startTime;
     if (waitTime > WAIT_MAX) {
         throw new Error(`Timed-out after ${WAIT_MAX}ms waiting for daemon to launch`);

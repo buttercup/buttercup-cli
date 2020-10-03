@@ -16,3 +16,7 @@ export function startShutdownTimer(delayMS: number) {
     __timerDelay = delayMS;
     __timer = setTimeout(onTimerExpire, __timerDelay);
 }
+
+export function stopTimer() {
+    clearTimeout(__timer);
+}
