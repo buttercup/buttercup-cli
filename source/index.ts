@@ -29,6 +29,7 @@ function help() {
     console.log("\tadd\t\t\tAdd a new vault");
     console.log("\tlock\t\t\tLock a vault or vaults");
     console.log("\tremove\t\t\tRemove a vault");
+    console.log("\tshutdown\t\t\tShutdown the Daemon, if running");
     console.log("\tssh\t\t\tUse protected SSH keys");
     console.log("\tunlock\t\t\tUnlock a vault or vaults");
 }

@@ -1,4 +1,6 @@
+import path from "path";
 import ConfigStore from "configstore";
+import userHome from "user-home";
 import { CONFIG_PACKAGE_NAME } from "../symbols";
 const packageInfo = require("../../package.json");
 
@@ -15,6 +17,10 @@ function getConfig(): ConfigStore {
         __config = new ConfigStore(CONFIG_PACKAGE_NAME, CONFIG_DEFAULTS);
     }
     return __config;
+}
+
+export function getConfigDirectory(): string {
+    return path.join(userHome, ".buttercup/cli");
 }
 
 export function getDaemonTTL(): string {

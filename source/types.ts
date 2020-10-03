@@ -1,6 +1,7 @@
 export interface AddVaultPayload {
     initialise?: boolean;
     masterPassword: string;
+    name: string;
     path?: string;
     type: DatasourceType;
 }
@@ -15,6 +16,7 @@ export interface ArgV {
 }
 
 export interface ArgVAddVault extends ArgV {
+    name?: string;
     type?: DatasourceType
 }
 

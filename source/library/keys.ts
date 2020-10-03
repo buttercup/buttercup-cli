@@ -2,9 +2,9 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import randomString from "crypto-random-string";
-import userHome from "user-home";
 import pify from "pify";
 import createMode from "stat-mode";
+import { getConfigDirectory } from "./config";
 import { RSAKeyPair } from "../types";
 
 const mkdir = pify(fs.mkdir);
@@ -44,7 +44,7 @@ function generateKeyPairSecret(): string {
 }
 
 export async function getKeys(): Promise<RSAKeyPair> {
-    const keyPath = path.join(userHome, ".buttercup/cli");
+    const keyPath = getConfigDirectory();
     await mkdir(keyPath, { recursive: true });
     const raw = await readFile(path.join(keyPath, "daemon.bcupkp"), "utf8");
     const payload = JSON.parse(raw) as {
@@ -55,7 +55,7 @@ export async function getKeys(): Promise<RSAKeyPair> {
 }
 
 export async function storeKeys(keyPair: RSAKeyPair) {
-    const keyPath = path.join(userHome, ".buttercup/cli");
+    const keyPath = getConfigDirectory();
     await mkdir(keyPath, {
         recursive: true
     });

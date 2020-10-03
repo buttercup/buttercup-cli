@@ -5,14 +5,20 @@ import { AddVaultPayload, ArgVAddVault, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
+    name?: string;
     path?: string;
     type: DatasourceType;
 }
+
+const VAULT_NAME_REXP = /^[a-z0-9_]+$/;
 
 export async function add(argv: ArgVAddVault) {
     const commands = argv._ || [];
     commands.shift();
     const [initialFilePath = null] = commands;
+    if (argv.name && !VAULT_NAME_REXP.test(argv.name)) {
+        throw new Error(`Invalid vault name: ${argv.name} (should match: ${VAULT_NAME_REXP.toString()})`);
+    }
     // Build prompt
     const prompts = [];
     if (!argv.type) {
@@ -41,6 +47,18 @@ export async function add(argv: ArgVAddVault) {
             !initialFilePath
     });
     prompts.push({
+        type: "input",
+        name: "name",
+        message: "Vault name ([a-z0-9_])",
+        validate: (value: string) => {
+            if (!VAULT_NAME_REXP.test(value)) {
+                return "Invalid vault name";
+            }
+            return true;
+        },
+        when: () => !argv.name
+    });
+    prompts.push({
         type: "confirm",
         name: "initialise",
         message: "Create new vault?",
@@ -55,6 +73,7 @@ export async function add(argv: ArgVAddVault) {
     const payload: AddVaultPayload = {
         initialise: results.initialise,
         masterPassword,
+        name: argv.name || results.name,
         path: initialFilePath || results.path || null,
         type: results.type
     };

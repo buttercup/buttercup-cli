@@ -1,7 +1,7 @@
 import { getKeys } from "../library/keys";
 import { encryptContent } from "../library/encryption";
 import { stopDaemon } from "./app";
-import { stopTimer } from "./timer";
+import { renewTimer, stopTimer } from "./timer";
 import { DaemonCommand, DaemonRequest, DaemonResponse, DaemonResponseStatus } from "../types";
 
 export async function handleCommand(req, res) {
@@ -16,6 +16,7 @@ export async function handleCommand(req, res) {
 }
 
 async function routeCommand(payload: DaemonRequest): Promise<DaemonResponse> {
+    // renewTimer
     switch (payload.type) {
         case DaemonCommand.Shutdown:
             setTimeout(() => {

@@ -3,6 +3,7 @@
 import { daemonRunning } from "../library/daemon";
 import { startDaemon } from "./app";
 import { startShutdownTimer } from "./timer";
+import { initialise as initialiseBcup } from "./buttercup/vaultMgmt";
 import {
     DAEMON_EXIT_ALREADY_RUNNING,
     DAEMON_EXIT_NO_KEYS,
@@ -17,6 +18,8 @@ export async function boot() {
         console.error("Already running");
         process.exit(DAEMON_EXIT_ALREADY_RUNNING);
     };
+    // Bcup
+    initialiseBcup();
     // Start
     await startDaemon();
     // Run shutdown timer
@@ -37,8 +40,3 @@ function checkEnv() {
         process.exit(DAEMON_EXIT_NO_TTL);
     }
 }
-
-// boot().catch(err => {
-//     console.error(err);
-//     process.exit(1);
-// });
