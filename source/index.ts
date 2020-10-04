@@ -23,7 +23,8 @@ function help() {
     console.log("with Buttercup password vaults.");
     console.log("");
     console.log("Options:");
-    console.log("\t-h, --help\t\tShow this help message.");
+    console.log("\t-h, --help\t\tShow this help message");
+    console.log("\t--verbose\t\tShow verbose/debug information");
     console.log("\t-v, --version\t\tShow version information");
     console.log("");
     console.log("Commands:");
