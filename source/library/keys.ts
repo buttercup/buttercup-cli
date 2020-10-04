@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
-import randomString from "crypto-random-string";
 import pify from "pify";
 import createMode from "stat-mode";
 import { getConfigDirectory } from "./config";
@@ -16,7 +15,6 @@ const writeFile = pify(fs.writeFile);
 
 export function generateKeyPair(): Promise<RSAKeyPair> {
     return new Promise((resolve, reject) => {
-        const secret = generateKeyPairSecret();
         crypto.generateKeyPair(
             "rsa",
             {
@@ -39,10 +37,6 @@ export function generateKeyPair(): Promise<RSAKeyPair> {
             }
         );
     });
-}
-
-function generateKeyPairSecret(): string {
-    return randomString({ length: 36 });
 }
 
 export async function getKeys(): Promise<RSAKeyPair> {

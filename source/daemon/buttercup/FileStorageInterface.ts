@@ -20,7 +20,7 @@ export class FileStorageInterface extends StorageInterface {
 
     async getValue(name: string): Promise<string | null> {
         const content = await this._getContent();
-        return typeof content[name] !== "undefined" ? content[name] : null;
+        return content && typeof content[name] !== "undefined" ? content[name] : null;
     }
 
     async removeKey(name: string): Promise<void> {

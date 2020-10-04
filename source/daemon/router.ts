@@ -7,7 +7,15 @@ import { AddVaultResponse, DaemonCommand, DaemonRequest, DaemonResponse, DaemonR
 
 export async function handleCommand(req, res) {
     const payload: DaemonRequest = req.body;
-    const resp = await routeCommand(payload);
+    let resp;
+    try {
+        resp = await routeCommand(payload);
+    } catch (err) {
+        resp = {
+            status: DaemonResponseStatus.Error,
+            error: `Command failed: ${err.message}`
+        };
+    }
     const keys = await getKeys();
     const encrypted = await encryptContent(JSON.stringify(resp), keys);
     res
