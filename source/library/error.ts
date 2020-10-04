@@ -7,7 +7,7 @@ function getPrettyError() {
     return (__pe = __pe || new PrettyError());
 }
 
-export function logError(error: Error, full: boolean = false) {
+export function logError(error: Error, full: boolean) {
     if (full) {
         console.log(getPrettyError().render(error));
     } else {

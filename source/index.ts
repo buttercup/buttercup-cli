@@ -99,6 +99,7 @@ function version() {
 }
 
 init().catch((err: Error) => {
-    logError(err);
+    const argv: ArgV = minimist(process.argv.slice(2));
+    logError(err, !!argv.verbose);
     process.exit(1);
 });

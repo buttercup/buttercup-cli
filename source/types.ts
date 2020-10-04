@@ -16,6 +16,7 @@ export interface ArgV {
     _?: Array<string>;
     daemon?: boolean;
     help?: boolean;
+    verbose?: boolean;
     version?: boolean;
     h?: boolean;
     v?: boolean;
