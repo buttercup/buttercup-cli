@@ -38,7 +38,7 @@ async function listSources(argv: ArgVList) {
     const { sources } = (<ListSourcesResponse> response.payload);
     if (output === "table") {
         const table = new Table({
-            head: ["#", "Name", "Type", "Status"].map(str => chalk.white.bold(str))
+            head: ["#", "Name", "Type", "Status", "ID"].map(str => chalk.white.bold(str))
         });
         const highlightStatus = status => {
             if (status === VaultSourceStatus.Locked) {
@@ -53,7 +53,8 @@ async function listSources(argv: ArgVList) {
                 source.order,
                 source.name,
                 source.type,
-                highlightStatus(source.status)
+                highlightStatus(source.status),
+                source.id
             ]);
         });
         console.log(table.toString());
