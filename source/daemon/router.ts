@@ -2,8 +2,8 @@ import { getKeys } from "../library/keys";
 import { encryptContent } from "../library/encryption";
 import { stopDaemon } from "./app";
 import { renewTimer, stopTimer } from "./timer";
-import { addVault } from "./buttercup/vaultMgmt";
-import { AddVaultResponse, DaemonCommand, DaemonRequest, DaemonResponse, DaemonResponseStatus } from "../types";
+import { addVault, getVaultsList } from "./buttercup/vaultMgmt";
+import { AddVaultPayload, AddVaultResponse, DaemonCommand, DaemonRequest, DaemonResponse, DaemonResponseStatus, ListSourcesResponse } from "../types";
 
 export async function handleCommand(req, res) {
     const payload: DaemonRequest = req.body;
@@ -28,10 +28,18 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
     renewTimer();
     switch (request.type) {
         case DaemonCommand.AddVault: {
-            const source = await addVault(request.payload);
+            const source = await addVault(request.payload as AddVaultPayload);
             const resp: AddVaultResponse = {
                 sourceID: source.id
             };
+            return {
+                status: DaemonResponseStatus.OK,
+                payload: resp
+            };
+        }
+        case DaemonCommand.ListSources: {
+            const sources = await getVaultsList();
+            const resp: ListSourcesResponse = { sources };
             return {
                 status: DaemonResponseStatus.OK,
                 payload: resp

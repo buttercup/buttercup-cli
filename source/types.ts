@@ -1,3 +1,5 @@
+import { VaultSourceID, VaultSourceStatus } from "buttercup";
+
 export interface AddVaultPayload {
     initialise?: boolean;
     masterPassword: string;
@@ -24,19 +26,25 @@ export interface ArgVAddVault extends ArgV {
     type?: DatasourceType
 }
 
+export interface ArgVList extends ArgV {
+    _: ["vaults"];
+    output?: "json" | "table";
+}
+
 export enum DaemonCommand {
     AddVault = "add-vault",
+    ListSources = "list-sources",
     Shutdown = "shutdown"
 }
 
 export interface DaemonRequest {
     type: DaemonCommand;
-    payload?: AddVaultPayload;
+    payload?: AddVaultPayload | ListSourcesPayload;
 }
 
 export interface DaemonResponse {
     error?: string;
-    payload?: AddVaultResponse;
+    payload?: AddVaultResponse | ListSourcesResponse;
     status: DaemonResponseStatus;
 }
 
@@ -50,7 +58,24 @@ export enum DatasourceType {
     MyButtercup = "mybuttercup"
 }
 
+export interface ListSourcesPayload {
+    locked: boolean;
+    unlocked: boolean;
+}
+
+export interface ListSourcesResponse {
+    sources: Array<VaultDescription>;
+}
+
 export interface RSAKeyPair {
     public: string;
     private: string;
+}
+
+export interface VaultDescription {
+    id: VaultSourceID;
+    name: string;
+    order: number;
+    status: VaultSourceStatus;
+    type: DatasourceType;
 }

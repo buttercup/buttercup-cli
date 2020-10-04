@@ -5,11 +5,12 @@ import chalk from "chalk";
 import boxen from "boxen";
 import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
-import { ArgV } from "./types";
 import { add as addVault } from "./commands/add";
+import { list as listItems } from "./commands/list";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
 import { daemonRunning } from "./client/request";
+import { ArgV, ArgVAddVault, ArgVList } from "./types";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -71,10 +72,14 @@ async function noArgs() {
 }
 
 async function routeCommand(argv: ArgV) {
-    const [command] = argv._ || [];
+    argv._ = argv._ || [];
+    const [command] = argv._;
+    argv._.shift();
     switch (command) {
         case "add":
-            return addVault(argv);
+            return addVault(argv as ArgVAddVault);
+        case "list":
+            return listItems(argv as ArgVList);
         case "shutdown":
             return shutdownDaemon();
         default:

@@ -7,7 +7,7 @@ import {
 } from "buttercup";
 import { FileStorageInterface } from "./FileStorageInterface";
 import { getConfigDirectory } from "../../library/config";
-import { AddVaultPayload, DatasourceType } from "../../types";
+import { AddVaultPayload, DatasourceType, VaultDescription } from "../../types";
 
 let __vaultManager: VaultManager;
 
@@ -15,7 +15,7 @@ export const initialise = init;
 
 export async function addVault(payload: AddVaultPayload): Promise<VaultSource> {
     const { type, masterPassword, name, initialise } = payload;
-    const manager = getVaultManager();
+    const manager = await getVaultManager();
     let source = null;
     if (type === DatasourceType.File) {
         const { path: vaultPath } = payload;
@@ -39,7 +39,7 @@ export async function addVault(payload: AddVaultPayload): Promise<VaultSource> {
     return source;
 }
 
-export function getVaultManager(): VaultManager {
+export async function getVaultManager(): Promise<VaultManager> {
     if (!__vaultManager) {
         const configDir = getConfigDirectory();
         const sourcesFile = path.join(configDir, "sources.json");
@@ -48,6 +48,18 @@ export function getVaultManager(): VaultManager {
             cacheStorage: new FileStorageInterface(cacheFile),
             sourceStorage: new FileStorageInterface(sourcesFile)
         });
+        await __vaultManager.rehydrate();
     }
     return __vaultManager;
+}
+
+export async function getVaultsList(): Promise<Array<VaultDescription>> {
+    const manager = await getVaultManager();
+    return manager.sources.map((source: VaultSource) => ({
+        id: source.id,
+        name: source.name,
+        order: source.order,
+        status: source.status,
+        type: source.type as DatasourceType
+    }));
 }

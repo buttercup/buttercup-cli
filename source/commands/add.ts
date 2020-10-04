@@ -3,7 +3,7 @@ import { launchDaemon } from "../client/launch";
 import { sendMessage } from "../client/request";
 import { getMasterPassword } from "../library/password";
 import { getKeys } from "../library/keys";
-import { AddVaultPayload, ArgVAddVault, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
+import { AddVaultPayload, AddVaultResponse, ArgVAddVault, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
@@ -16,7 +16,6 @@ const VAULT_NAME_REXP = /^[a-z0-9_]+$/;
 
 export async function add(argv: ArgVAddVault) {
     const commands = argv._ || [];
-    commands.shift();
     const [initialFilePath = null] = commands;
     if (argv.name && !VAULT_NAME_REXP.test(argv.name)) {
         throw new Error(`Invalid vault name: ${argv.name} (should match: ${VAULT_NAME_REXP.toString()})`);
@@ -83,17 +82,18 @@ export async function add(argv: ArgVAddVault) {
     await addVault(payload);
 }
 
-async function addVault(payload: AddVaultPayload) {
+async function addVault(requestPayload: AddVaultPayload) {
     // Launch daemon
     await launchDaemon();
     // Request addition
     const keys = await getKeys();
     const response = await sendMessage({
         type: DaemonCommand.AddVault,
-        payload
+        payload: requestPayload
     }, keys);
     if (response.status !== DaemonResponseStatus.OK) {
         throw new Error(`Failed adding vault: ${response.error || "Unknown error"}`);
     }
-    console.log(`Vault added: ${payload.name} (${response.payload.sourceID})`);
+    const payload = response.payload as AddVaultResponse;
+    console.log(`Vault added: ${requestPayload.name} (${payload.sourceID})`);
 }
