@@ -7,10 +7,11 @@ import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
 import { add as addVault } from "./commands/add";
 import { list as listItems } from "./commands/list";
+import { lock as lockItems } from "./commands/lock";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
 import { daemonRunning } from "./client/request";
-import { ArgV, ArgVAddVault, ArgVList } from "./types";
+import { ArgV, ArgVAddVault, ArgVList, ArgVLock } from "./types";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -29,6 +30,7 @@ function help() {
     console.log("");
     console.log("Commands:");
     console.log("\tadd\t\t\tAdd a new vault");
+    console.log("\tlist\t\t\tList vaults");
     console.log("\tlock\t\t\tLock a vault or vaults");
     console.log("\tremove\t\t\tRemove a vault");
     console.log("\tshutdown\t\tShutdown the Daemon, if running");
@@ -81,6 +83,8 @@ async function routeCommand(argv: ArgV) {
             return addVault(argv as ArgVAddVault);
         case "list":
             return listItems(argv as ArgVList);
+        case "lock":
+            return lockItems(argv as ArgVLock);
         case "shutdown":
             return shutdownDaemon();
         default:

@@ -32,20 +32,27 @@ export interface ArgVList extends ArgV {
     output?: "json" | "table";
 }
 
+export interface ArgVLock extends ArgV {
+    all?: boolean;
+    id?: UUID;
+    index?: number;
+}
+
 export enum DaemonCommand {
     AddVault = "add-vault",
     ListSources = "list-sources",
+    LockSources = "lock-sources",
     Shutdown = "shutdown"
 }
 
 export interface DaemonRequest {
     type: DaemonCommand;
-    payload?: AddVaultPayload | ListSourcesPayload;
+    payload?: AddVaultPayload | ListSourcesPayload | LockSourcesPayload;
 }
 
 export interface DaemonResponse {
     error?: string;
-    payload?: AddVaultResponse | ListSourcesResponse;
+    payload?: AddVaultResponse | ListSourcesResponse | LockSourcesResponse;
     status: DaemonResponseStatus;
 }
 
@@ -68,13 +75,27 @@ export interface ListSourcesResponse {
     sources: Array<VaultDescription>;
 }
 
+export interface LockSourcesPayload {
+    all: boolean;
+    id?: UUID;
+    index?: number;
+}
+
+export interface LockSourcesResponse {
+    lockedIDs: Array<UUID>;
+    lockedIndexes: Array<number>;
+}
+
 export interface RSAKeyPair {
     public: string;
     private: string;
 }
 
+export type UUID = string;
+
 export interface VaultDescription {
     id: VaultSourceID;
+    index: number;
     name: string;
     order: number;
     status: VaultSourceStatus;
