@@ -2,6 +2,7 @@ import path from "path";
 import {
     Credentials,
     VaultSource,
+    VaultSourceStatus,
     VaultManager,
     init
 } from "buttercup";
@@ -89,4 +90,17 @@ function sourceToDescription(source: VaultSource, sources: Array<VaultSource>): 
         status: source.status,
         type: source.type as DatasourceType
     };
+}
+
+export async function unlockVault(id: UUID, masterPassword: string): Promise<VaultDescription> {
+    if (!masterPassword) {
+        throw new Error("Cannot unlock: No password provided");
+    }
+    const manager = await getVaultManager();
+    const source = manager.getSourceForID(id);
+    if (source.status === VaultSourceStatus.Unlocked) {
+        throw new Error(`Vault is already unlocked: ${id}`);
+    }
+    await source.unlock(Credentials.fromPassword(masterPassword));
+    return sourceToDescription(source, manager.sources);
 }

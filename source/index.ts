@@ -8,10 +8,11 @@ import { markInstalledVersion } from "./library/config";
 import { add as addVault } from "./commands/add";
 import { list as listItems } from "./commands/list";
 import { lock as lockItems } from "./commands/lock";
+import { unlock as unlockItem } from "./commands/unlock";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
 import { daemonRunning } from "./client/request";
-import { ArgV, ArgVAddVault, ArgVList, ArgVLock } from "./types";
+import { ArgV, ArgVAddVault, ArgVList, ArgVLock, ArgVUnlock } from "./types";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -87,6 +88,8 @@ async function routeCommand(argv: ArgV) {
             return lockItems(argv as ArgVLock);
         case "shutdown":
             return shutdownDaemon();
+        case "unlock":
+            return unlockItem(argv as ArgVUnlock);
         default:
             throw new Error(`Unknown command: ${command}`);
     }
