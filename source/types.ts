@@ -23,12 +23,13 @@ export interface ArgV {
 }
 
 export interface ArgVAddVault extends ArgV {
+    _: ["vaults" | "vault"];
     name?: string;
     type?: DatasourceType
 }
 
 export interface ArgVList extends ArgV {
-    _: ["vaults"];
+    _: ["vaults" | "vault"];
     output?: "json" | "table";
 }
 

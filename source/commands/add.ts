@@ -3,7 +3,7 @@ import { launchDaemon } from "../client/launch";
 import { sendMessage } from "../client/request";
 import { getMasterPassword } from "../library/password";
 import { getKeys } from "../library/keys";
-import { AddVaultPayload, AddVaultResponse, ArgVAddVault, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
+import { AddVaultPayload, AddVaultResponse, ArgV, ArgVAddVault, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
@@ -15,6 +15,18 @@ export interface AddVaultAnswers {
 const VAULT_NAME_REXP = /^[a-z0-9_]+$/;
 
 export async function add(argv: ArgVAddVault) {
+    const [type] = argv._;
+    switch (type) {
+        case "vault":
+            /* falls-through */
+        case "vaults":
+            return addVault(argv);
+        default:
+            throw new Error(`Invalid add type: ${type}`);
+    }
+}
+
+async function addVault(argv: ArgVAddVault) {
     const commands = argv._ || [];
     const [initialFilePath = null] = commands;
     if (argv.name && !VAULT_NAME_REXP.test(argv.name)) {
@@ -79,10 +91,10 @@ export async function add(argv: ArgVAddVault) {
         path: initialFilePath || results.path || null,
         type: results.type
     };
-    await addVault(payload);
+    await requestAddVault(payload);
 }
 
-async function addVault(requestPayload: AddVaultPayload) {
+async function requestAddVault(requestPayload: AddVaultPayload) {
     // Launch daemon
     await launchDaemon();
     // Request addition
