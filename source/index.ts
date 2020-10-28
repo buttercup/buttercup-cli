@@ -7,10 +7,11 @@ import { logError } from "./library/error";
 import { markInstalledVersion } from "./library/config";
 import { add as addVault } from "./commands/add";
 import { list as listItems } from "./commands/list";
+import { remove as removeItems } from "./commands/remove";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
 import { daemonRunning } from "./client/request";
-import { ArgV, ArgVAddVault, ArgVList } from "./types";
+import { ArgV, ArgVAddVault, ArgVList, ArgVRemove } from "./types";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -81,6 +82,8 @@ async function routeCommand(argv: ArgV) {
             return addVault(argv as ArgVAddVault);
         case "list":
             return listItems(argv as ArgVList);
+        case "remove":
+            return removeItems(argv as ArgVRemove);
         case "shutdown":
             return shutdownDaemon();
         default:

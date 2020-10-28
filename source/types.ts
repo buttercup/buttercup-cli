@@ -32,20 +32,28 @@ export interface ArgVList extends ArgV {
     output?: "json" | "table";
 }
 
+export interface ArgVRemove extends ArgV {
+    _: ["vault" | "vaults"];
+    all?: boolean;
+    id?: string;
+    index?: number;
+}
+
 export enum DaemonCommand {
     AddVault = "add-vault",
     ListSources = "list-sources",
+    RemoveSources = "remove-sources",
     Shutdown = "shutdown"
 }
 
 export interface DaemonRequest {
     type: DaemonCommand;
-    payload?: AddVaultPayload | ListSourcesPayload;
+    payload?: AddVaultPayload | ListSourcesPayload | RemoveSourcesPayload;
 }
 
 export interface DaemonResponse {
     error?: string;
-    payload?: AddVaultResponse | ListSourcesResponse;
+    payload?: AddVaultResponse | ListSourcesResponse | RemoveSourcesResponse;
     status: DaemonResponseStatus;
 }
 
@@ -65,6 +73,16 @@ export interface ListSourcesPayload {
 }
 
 export interface ListSourcesResponse {
+    sources: Array<VaultDescription>;
+}
+
+export interface RemoveSourcesPayload {
+    all: boolean;
+    id?: VaultSourceID;
+    index?: number;
+}
+
+export interface RemoveSourcesResponse {
     sources: Array<VaultDescription>;
 }
 
