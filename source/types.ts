@@ -23,13 +23,20 @@ export interface ArgV {
 }
 
 export interface ArgVAddVault extends ArgV {
+    _: ["vaults" | "vault"];
     name?: string;
     type?: DatasourceType
 }
 
 export interface ArgVList extends ArgV {
-    _: ["vaults"];
+    _: ["vaults" | "vault"];
     output?: "json" | "table";
+}
+
+export interface ArgVLock extends ArgV {
+    all?: boolean;
+    id?: UUID;
+    index?: number;
 }
 
 export interface ArgVRemove extends ArgV {
@@ -39,21 +46,28 @@ export interface ArgVRemove extends ArgV {
     index?: number;
 }
 
+export interface ArgVUnlock extends ArgV {
+    id?: UUID;
+    index?: number;
+}
+
 export enum DaemonCommand {
     AddVault = "add-vault",
     ListSources = "list-sources",
+    LockSources = "lock-sources",
     RemoveSources = "remove-sources",
-    Shutdown = "shutdown"
+    Shutdown = "shutdown",
+    UnlockSource = "unlock-source"
 }
 
 export interface DaemonRequest {
     type: DaemonCommand;
-    payload?: AddVaultPayload | ListSourcesPayload | RemoveSourcesPayload;
+    payload?: AddVaultPayload | ListSourcesPayload | LockSourcesPayload | RemoveSourcesPayload | UnlockSourcePayload;
 }
 
 export interface DaemonResponse {
     error?: string;
-    payload?: AddVaultResponse | ListSourcesResponse | RemoveSourcesResponse;
+    payload?: AddVaultResponse | ListSourcesResponse | LockSourcesResponse | RemoveSourcesResponse | UnlockSourceResponse;
     status: DaemonResponseStatus;
 }
 
@@ -76,6 +90,17 @@ export interface ListSourcesResponse {
     sources: Array<VaultDescription>;
 }
 
+export interface LockSourcesPayload {
+    all: boolean;
+    id?: UUID;
+    index?: number;
+}
+
+export interface LockSourcesResponse {
+    lockedIDs: Array<UUID>;
+    lockedIndexes: Array<number>;
+}
+
 export interface RemoveSourcesPayload {
     all: boolean;
     id?: VaultSourceID;
@@ -91,8 +116,21 @@ export interface RSAKeyPair {
     private: string;
 }
 
+export interface UnlockSourcePayload {
+    id?: UUID;
+    index?: number;
+    masterPassword?: string;
+}
+
+export interface UnlockSourceResponse {
+    vault: VaultDescription;
+}
+
+export type UUID = string;
+
 export interface VaultDescription {
     id: VaultSourceID;
+    index: number;
     name: string;
     order: number;
     status: VaultSourceStatus;

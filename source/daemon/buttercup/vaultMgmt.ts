@@ -2,12 +2,13 @@ import path from "path";
 import {
     Credentials,
     VaultSource,
+    VaultSourceStatus,
     VaultManager,
     init
 } from "buttercup";
 import { FileStorageInterface } from "./FileStorageInterface";
 import { getConfigDirectory } from "../../library/config";
-import { AddVaultPayload, DatasourceType, VaultDescription } from "../../types";
+import { AddVaultPayload, DatasourceType, UUID, VaultDescription } from "../../types";
 
 let __vaultManager: VaultManager;
 
@@ -39,6 +40,11 @@ export async function addVault(payload: AddVaultPayload): Promise<VaultSource> {
     return source;
 }
 
+export async function getSourceAtIndex(index: number): Promise<VaultSource> {
+    const manager = await getVaultManager();
+    return manager.sources[index] || null;
+}
+
 export async function getVaultManager(): Promise<VaultManager> {
     if (!__vaultManager) {
         const configDir = getConfigDirectory();
@@ -55,11 +61,46 @@ export async function getVaultManager(): Promise<VaultManager> {
 
 export async function getVaultsList(): Promise<Array<VaultDescription>> {
     const manager = await getVaultManager();
-    return manager.sources.map((source: VaultSource) => ({
+    return manager.sources.map((source: VaultSource) => sourceToDescription(source, manager.sources));
+}
+
+export async function lockAllVaults(): Promise<Array<VaultDescription>> {
+    const manager = await getVaultManager();
+    const unlocked = manager.unlockedSources;
+    await Promise.all(unlocked.map((source: VaultSource) => source.lock()));
+    return unlocked.map((source: VaultSource) => sourceToDescription(source, manager.sources));
+}
+
+export async function lockVaults(ids: Array<UUID>): Promise<Array<VaultDescription>> {
+    const manager = await getVaultManager();
+    const targets = ids.reduce((sources, nextID) => {
+        const source = manager.getSourceForID(nextID);
+        if (source) sources.push(source);
+        return sources;
+    }, []);
+    return targets.map((source: VaultSource) => sourceToDescription(source, manager.sources));
+}
+
+function sourceToDescription(source: VaultSource, sources: Array<VaultSource>): VaultDescription {
+    return {
         id: source.id,
+        index: sources.findIndex(item => item.id === source.id),
         name: source.name,
         order: source.order,
         status: source.status,
         type: source.type as DatasourceType
-    }));
+    };
+}
+
+export async function unlockVault(id: UUID, masterPassword: string): Promise<VaultDescription> {
+    if (!masterPassword) {
+        throw new Error("Cannot unlock: No password provided");
+    }
+    const manager = await getVaultManager();
+    const source = manager.getSourceForID(id);
+    if (source.status === VaultSourceStatus.Unlocked) {
+        throw new Error(`Vault is already unlocked: ${id}`);
+    }
+    await source.unlock(Credentials.fromPassword(masterPassword));
+    return sourceToDescription(source, manager.sources);
 }

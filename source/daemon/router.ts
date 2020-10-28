@@ -2,8 +2,19 @@ import { getKeys } from "../library/keys";
 import { encryptContent } from "../library/encryption";
 import { stopDaemon } from "./app";
 import { renewTimer, stopTimer } from "./timer";
-import { addVault, getVaultsList } from "./buttercup/vaultMgmt";
-import { AddVaultPayload, AddVaultResponse, DaemonCommand, DaemonRequest, DaemonResponse, DaemonResponseStatus, ListSourcesResponse } from "../types";
+import { addVault, getSourceAtIndex, getVaultsList, lockAllVaults, lockVaults, unlockVault } from "./buttercup/vaultMgmt";
+import {
+    AddVaultPayload,
+    AddVaultResponse,
+    DaemonCommand,
+    DaemonRequest,
+    DaemonResponse,
+    DaemonResponseStatus,
+    ListSourcesResponse,
+    LockSourcesPayload,
+    UnlockSourcePayload,
+    VaultDescription
+} from "../types";
 
 export async function handleCommand(req, res) {
     const payload: DaemonRequest = req.body;
@@ -45,6 +56,30 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
                 payload: resp
             };
         }
+        case DaemonCommand.LockSources: {
+            const { all, id, index } = request.payload as LockSourcesPayload;
+            let items: Array<VaultDescription>;
+            if (all) {
+                items = await lockAllVaults();
+            } else if (id) {
+                items = await lockVaults([id]);
+            } else if (typeof index === "number" && index >= 0) {
+                const source = await getSourceAtIndex(index);
+                items = await lockVaults([source.id]);
+            } else {
+                return {
+                    status: DaemonResponseStatus.Error,
+                    error: "No target specified for locking"
+                };
+            }
+            return {
+                status: DaemonResponseStatus.OK,
+                payload: {
+                    lockedIDs: items.map(item => item.id),
+                    lockedIndexes: items.map(item => item.index)
+                }
+            };
+        }
         case DaemonCommand.RemoveSources: {
             // @todo
         }
@@ -56,6 +91,27 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
             return {
                 status: DaemonResponseStatus.OK
             };
+        case DaemonCommand.UnlockSource: {
+            const { id, index, masterPassword = null } = request.payload as UnlockSourcePayload;
+            let vault: VaultDescription;
+            if (id) {
+                vault = await unlockVault(id, masterPassword);
+            } else if (typeof index === "number" && index >= 0) {
+                const source = await getSourceAtIndex(index);
+                vault = await unlockVault(source.id, masterPassword);
+            } else {
+                return {
+                    status: DaemonResponseStatus.Error,
+                    error: "No target specified for locking"
+                };
+            }
+            return {
+                status: DaemonResponseStatus.OK,
+                payload: {
+                    vault
+                }
+            };
+        }
         default:
             return {
                 status: DaemonResponseStatus.Error,

@@ -9,6 +9,8 @@ import { ArgVList, DaemonCommand, DaemonResponseStatus, ListSourcesPayload, List
 export async function list(argv: ArgVList) {
     const [type] = argv._;
     switch (type) {
+        case "vault":
+            /* falls-through */
         case "vaults":
             return listSources(argv);
         default:
