@@ -37,8 +37,8 @@ async function removeSources(argv: ArgVRemove) {
     if (response.status !== DaemonResponseStatus.OK) {
         throw new Error(`Failed removing vault sources: ${response.error || "Unknown error"}`);
     }
-    const { sources } = (<RemoveSourcesResponse> response.payload);
-    sources.forEach(source => {
-        console.log(source.id);
+    const { removedIDs } = (<RemoveSourcesResponse> response.payload);
+    removedIDs.forEach(id => {
+        console.log(id);
     });
 }

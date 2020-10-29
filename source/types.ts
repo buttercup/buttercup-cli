@@ -122,7 +122,7 @@ export interface RemoveSourcesPayload {
 }
 
 export interface RemoveSourcesResponse {
-    sources: Array<VaultDescription>;
+    removedIDs: Array<UUID>;
 }
 
 export interface RSAKeyPair {

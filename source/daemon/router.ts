@@ -2,7 +2,18 @@ import { getKeys } from "../library/keys";
 import { encryptContent } from "../library/encryption";
 import { stopDaemon } from "./app";
 import { renewTimer, stopTimer } from "./timer";
-import { addVault, getSourceAtIndex, getVaultFacade, getVaultsList, getVaultManager, lockAllVaults, lockVaults, unlockVault } from "./buttercup/vaultMgmt";
+import {
+    addVault,
+    getSourceAtIndex,
+    getVaultFacade,
+    getVaultsList,
+    getVaultManager,
+    lockAllVaults,
+    lockVaults,
+    removeAllVaults,
+    removeVault,
+    unlockVault
+} from "./buttercup/vaultMgmt";
 import {
     AddVaultPayload,
     AddVaultResponse,
@@ -12,6 +23,7 @@ import {
     DaemonResponseStatus,
     ListSourcesResponse,
     LockSourcesPayload,
+    RemoveSourcesPayload,
     UnlockSourcePayload,
     VaultContentsPayload,
     VaultContentsResponse,
@@ -106,7 +118,29 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
             };
         }
         case DaemonCommand.RemoveSources: {
-            // @todo
+            const { all, id, index } = request.payload as RemoveSourcesPayload;
+            let items: Array<VaultDescription>;
+            if (all) {
+                items = await removeAllVaults();
+            } else if (id) {
+                const item = await removeVault(id);
+                items = [item];
+            } else if (typeof index === "number" && index >= 0) {
+                const source = await getSourceAtIndex(index);
+                const item = await removeVault(source.id);
+                items = [item];
+            } else {
+                return {
+                    status: DaemonResponseStatus.Error,
+                    error: "No target specified for removal"
+                };
+            }
+            return {
+                status: DaemonResponseStatus.OK,
+                payload: {
+                    removedIDs: items.map(item => item.id)
+                }
+            };
         }
         case DaemonCommand.Shutdown:
             setTimeout(() => {

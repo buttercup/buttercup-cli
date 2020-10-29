@@ -90,6 +90,23 @@ export async function lockVaults(ids: Array<UUID>): Promise<Array<VaultDescripti
     return targets.map((source: VaultSource) => sourceToDescription(source, manager.sources));
 }
 
+export async function removeAllVaults(): Promise<Array<VaultDescription>> {
+    const manager = await getVaultManager();
+    const descs = manager.sources.map(source => sourceToDescription(source, manager.sources));
+    for (const desc of descs) {
+        await manager.removeSource(desc.id);
+    }
+    return descs;
+}
+
+export async function removeVault(id: UUID): Promise<VaultDescription> {
+    const manager = await getVaultManager();
+    const source = manager.getSourceForID(id);
+    const desc = sourceToDescription(source, manager.sources);
+    await manager.removeSource(id);
+    return desc;
+}
+
 function sourceToDescription(source: VaultSource, sources: Array<VaultSource>): VaultDescription {
     return {
         id: source.id,
