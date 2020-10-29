@@ -41,6 +41,13 @@ export interface ArgVLock extends ArgV {
     index?: number;
 }
 
+export interface ArgVRemove extends ArgV {
+    _: ["vault" | "vaults"];
+    all?: boolean;
+    id?: string;
+    index?: number;
+}
+
 export interface ArgVUnlock extends ArgV {
     id?: UUID;
     index?: number;
@@ -51,18 +58,19 @@ export enum DaemonCommand {
     GetVaultContents = "vault-contents",
     ListSources = "list-sources",
     LockSources = "lock-sources",
+    RemoveSources = "remove-sources",
     Shutdown = "shutdown",
     UnlockSource = "unlock-source"
 }
 
 export interface DaemonRequest {
     type: DaemonCommand;
-    payload?: AddVaultPayload | ListSourcesPayload | LockSourcesPayload | UnlockSourcePayload;
+    payload?: AddVaultPayload | ListSourcesPayload | LockSourcesPayload | RemoveSourcesPayload | UnlockSourcePayload;
 }
 
 export interface DaemonResponse {
     error?: string;
-    payload?: AddVaultResponse | ListSourcesResponse | LockSourcesResponse | UnlockSourceResponse;
+    payload?: AddVaultResponse | ListSourcesResponse | LockSourcesResponse | RemoveSourcesResponse | UnlockSourceResponse;
     status: DaemonResponseStatus;
 }
 
@@ -105,6 +113,16 @@ export interface LockSourcesPayload {
 export interface LockSourcesResponse {
     lockedIDs: Array<UUID>;
     lockedIndexes: Array<number>;
+}
+
+export interface RemoveSourcesPayload {
+    all: boolean;
+    id?: VaultSourceID;
+    index?: number;
+}
+
+export interface RemoveSourcesResponse {
+    sources: Array<VaultDescription>;
 }
 
 export interface RSAKeyPair {

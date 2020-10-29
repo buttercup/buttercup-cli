@@ -105,6 +105,9 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
                 }
             };
         }
+        case DaemonCommand.RemoveSources: {
+            // @todo
+        }
         case DaemonCommand.Shutdown:
             setTimeout(() => {
                 stopDaemon();
