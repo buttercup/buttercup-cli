@@ -2,7 +2,7 @@ import { getKeys } from "../library/keys";
 import { encryptContent } from "../library/encryption";
 import { stopDaemon } from "./app";
 import { renewTimer, stopTimer } from "./timer";
-import { addVault, getSourceAtIndex, getVaultsList, lockAllVaults, lockVaults, unlockVault } from "./buttercup/vaultMgmt";
+import { addVault, getSourceAtIndex, getVaultFacade, getVaultsList, getVaultManager, lockAllVaults, lockVaults, unlockVault } from "./buttercup/vaultMgmt";
 import {
     AddVaultPayload,
     AddVaultResponse,
@@ -13,6 +13,8 @@ import {
     ListSourcesResponse,
     LockSourcesPayload,
     UnlockSourcePayload,
+    VaultContentsPayload,
+    VaultContentsResponse,
     VaultDescription
 } from "../types";
 
@@ -46,6 +48,29 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
             return {
                 status: DaemonResponseStatus.OK,
                 payload: resp
+            };
+        }
+        case DaemonCommand.GetVaultContents: {
+            const { id, index } = request.payload as VaultContentsPayload;
+            let facade;
+            if (id) {
+                const manager = await getVaultManager();
+                const source = manager.getSourceForID(id);
+                facade = await getVaultFacade(source);
+            } else if (typeof index === "number" && index >= 0) {
+                const source = await getSourceAtIndex(index);
+                facade = await getVaultFacade(source);
+            } else {
+                return {
+                    status: DaemonResponseStatus.Error,
+                    error: "No target specified for locking"
+                };
+            }
+            return {
+                status: DaemonResponseStatus.OK,
+                payload: {
+                    vault: facade
+                } as VaultContentsResponse
             };
         }
         case DaemonCommand.ListSources: {

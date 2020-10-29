@@ -1,4 +1,4 @@
-import { VaultSourceID, VaultSourceStatus } from "buttercup";
+import { VaultFacade, VaultSourceID, VaultSourceStatus } from "buttercup";
 
 export interface AddVaultPayload {
     initialise?: boolean;
@@ -22,15 +22,17 @@ export interface ArgV {
     v?: boolean;
 }
 
-export interface ArgVAddVault extends ArgV {
-    _: ["vaults" | "vault"];
+export interface ArgVAdd extends ArgV {
+    _: ["vaults" | "vault", Filename?];
     name?: string;
-    type?: DatasourceType
+    type?: DatasourceType;
 }
 
 export interface ArgVList extends ArgV {
-    _: ["vaults" | "vault"];
-    output?: "json" | "table";
+    _: ["groups" | "group" | "vaults" | "vault"];
+    id?: UUID;
+    index?: number;
+    output?: "json" | "table" | "tree";
 }
 
 export interface ArgVLock extends ArgV {
@@ -46,6 +48,7 @@ export interface ArgVUnlock extends ArgV {
 
 export enum DaemonCommand {
     AddVault = "add-vault",
+    GetVaultContents = "vault-contents",
     ListSources = "list-sources",
     LockSources = "lock-sources",
     Shutdown = "shutdown",
@@ -72,6 +75,17 @@ export enum DatasourceType {
     File = "file",
     MyButtercup = "mybuttercup"
 }
+
+export type Filename = string;
+
+// export interface ListGroupsPayload {
+//     id?: UUID;
+//     index?: number;
+// }
+
+// export interface ListGroupsResponse {
+
+// }
 
 export interface ListSourcesPayload {
     locked: boolean;
@@ -109,6 +123,15 @@ export interface UnlockSourceResponse {
 }
 
 export type UUID = string;
+
+export interface VaultContentsPayload {
+    id?: UUID;
+    index?: number;
+}
+
+export interface VaultContentsResponse {
+    vault: VaultFacade;
+}
 
 export interface VaultDescription {
     id: VaultSourceID;

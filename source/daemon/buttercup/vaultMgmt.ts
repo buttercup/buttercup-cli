@@ -1,9 +1,11 @@
 import path from "path";
 import {
     Credentials,
+    VaultFacade,
     VaultSource,
     VaultSourceStatus,
     VaultManager,
+    createVaultFacade,
     init
 } from "buttercup";
 import { FileStorageInterface } from "./FileStorageInterface";
@@ -43,6 +45,13 @@ export async function addVault(payload: AddVaultPayload): Promise<VaultSource> {
 export async function getSourceAtIndex(index: number): Promise<VaultSource> {
     const manager = await getVaultManager();
     return manager.sources[index] || null;
+}
+
+export async function getVaultFacade(source: VaultSource): Promise<VaultFacade> {
+    if (source.status !== VaultSourceStatus.Unlocked) {
+        throw new Error(`Source not unlocked: ${source.id}`);
+    }
+    return createVaultFacade(source.vault);
 }
 
 export async function getVaultManager(): Promise<VaultManager> {

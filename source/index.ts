@@ -12,7 +12,7 @@ import { unlock as unlockItem } from "./commands/unlock";
 import { shutdown as shutdownDaemon } from "./client/shutdown";
 import { boot as bootDaemon } from "./daemon/index";
 import { daemonRunning } from "./client/request";
-import { ArgV, ArgVAddVault, ArgVList, ArgVLock, ArgVUnlock } from "./types";
+import { ArgV, ArgVAdd, ArgVList, ArgVLock, ArgVUnlock } from "./types";
 const packageInfo = require("../package.json");
 
 const OFFLINE = chalk.red("OFFLINE");
@@ -81,7 +81,7 @@ async function routeCommand(argv: ArgV) {
     argv._.shift();
     switch (command) {
         case "add":
-            return addVault(argv as ArgVAddVault);
+            return addVault(argv as ArgVAdd);
         case "list":
             return listItems(argv as ArgVList);
         case "lock":

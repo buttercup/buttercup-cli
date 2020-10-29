@@ -4,3 +4,4 @@ export const DAEMON_EXIT_NO_KEYS = 150;
 export const DAEMON_EXIT_NO_TTL = 151;
 export const DAEMON_PORT = 51020;
 export const DAEMON_REQUEST_TIMEOUT = 5000;
+export const TREE_INDENT_SPACES = 2;
