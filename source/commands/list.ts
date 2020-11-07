@@ -1,6 +1,6 @@
 import Table from "cli-table3";
 import chalk from "chalk";
-import { Group, GroupFacade, VaultSourceStatus } from "buttercup";
+import { EntryPropertyType, Group, GroupFacade, VaultSourceStatus } from "buttercup";
 import { launchDaemon } from "../client/launch";
 import { sendMessage } from "../client/request";
 import { getKeys } from "../library/keys";
@@ -11,6 +11,10 @@ import { ArgVList, DaemonCommand, DaemonResponseStatus, ListSourcesPayload, List
 export async function list(argv: ArgVList) {
     const [type] = argv._;
     switch (type) {
+        case "entry":
+            /* falls-through */
+        case "entries":
+            return listGroups(argv, true);
         case "group":
             /* falls-through */
         case "groups":
@@ -24,7 +28,7 @@ export async function list(argv: ArgVList) {
     }
 }
 
-async function listGroups(argv: ArgVList) {
+async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
     const {
         id,
         index,
@@ -56,8 +60,18 @@ async function listGroups(argv: ArgVList) {
             groups.forEach(group => {
                 if (group.parentID !== parent) return;
                 const isTrash = group.attributes[Group.Attribute.Role] === "trash";
-                const title = isTrash ? chalk.red(group.title) : group.title;
+                const title = renderEntries
+                    ? chalk.dim(group.title)
+                    : isTrash ? chalk.red(group.title) : group.title;
                 console.log(`${generateIndentation(indent)}${chalk.dim(group.id)} ${title}`);
+                if (renderEntries) {
+                    vault.entries.forEach(entry => {
+                        if (entry.parentID === group.id) {
+                            const entryTitle = entry.fields.find(f => f.propertyType === EntryPropertyType.Property && f.property === "title").value;
+                            console.log(`${generateIndentation(indent + 1)}${chalk.dim(entry.id)} ${entryTitle}`);
+                        }
+                    });
+                }
                 renderGroups(groups, group.id, indent + TREE_INDENT_SPACES);
             });
         })(vault.groups);

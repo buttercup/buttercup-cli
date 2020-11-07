@@ -29,7 +29,7 @@ export interface ArgVAdd extends ArgV {
 }
 
 export interface ArgVList extends ArgV {
-    _: ["groups" | "group" | "vaults" | "vault"];
+    _: ["entries" | "entry" | "groups" | "group" | "vaults" | "vault"];
     id?: UUID;
     index?: number;
     output?: "json" | "table" | "tree";
