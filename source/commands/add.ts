@@ -12,6 +12,7 @@ export interface AddVaultAnswers {
     type: DatasourceType;
 }
 
+const DEFAULT_VAULT_TYPE = DatasourceType.File;
 const VAULT_NAME_REXP = /^[a-z0-9_]+$/;
 
 export async function add(argv: ArgVAdd) {
@@ -34,17 +35,16 @@ async function addVault(argv: ArgVAdd) {
     }
     // Build prompt
     const prompts = [];
-    if (!argv.type) {
-        prompts.push({
-            type: "list",
-            name: "type",
-            message: "Which vault type?",
-            choices: [
-                { name: "File", value: DatasourceType.File }
-            ],
-            default: 0
-        });
-    }
+    prompts.push({
+        type: "list",
+        name: "type",
+        message: "Which vault type?",
+        choices: [
+            { name: "File", value: DatasourceType.File }
+        ],
+        default: DEFAULT_VAULT_TYPE,
+        when: () => !argv.type
+    });
     prompts.push({
         type: "input",
         name: "path",
@@ -89,7 +89,7 @@ async function addVault(argv: ArgVAdd) {
         masterPassword,
         name: argv.name || results.name,
         path: initialFilePath || results.path || null,
-        type: results.type
+        type: results.type || DEFAULT_VAULT_TYPE
     };
     await requestAddVault(payload);
 }
