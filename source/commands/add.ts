@@ -1,9 +1,7 @@
 import inquirer from "inquirer";
-import { launchDaemon } from "../client/launch";
-import { sendMessage } from "../client/request";
 import { getMasterPassword } from "../library/password";
-import { getKeys } from "../library/keys";
-import { AddVaultPayload, AddVaultResponse, ArgV, ArgVAdd, DaemonCommand, DaemonResponseStatus, DatasourceType } from "../types";
+import { addVault as requestAddVault, getCurrentVaults } from "../client/adapter";
+import { AddVaultPayload, ArgVAdd, DatasourceType } from "../types";
 
 export interface AddVaultAnswers {
     initialise?: boolean;
@@ -33,6 +31,7 @@ async function addVault(argv: ArgVAdd) {
     if (argv.name && !VAULT_NAME_REXP.test(argv.name)) {
         throw new Error(`Invalid vault name: ${argv.name} (should match: ${VAULT_NAME_REXP.toString()})`);
     }
+    const currentSources = await getCurrentVaults();
     // Build prompt
     const prompts = [];
     prompts.push({
@@ -67,6 +66,8 @@ async function addVault(argv: ArgVAdd) {
         validate: (value: string) => {
             if (!VAULT_NAME_REXP.test(value)) {
                 return "Invalid vault name";
+            } else if (currentSources.find(source => source.name === value)) {
+                return "Vault name already in use";
             }
             return true;
         },
@@ -94,18 +95,4 @@ async function addVault(argv: ArgVAdd) {
     await requestAddVault(payload);
 }
 
-async function requestAddVault(requestPayload: AddVaultPayload) {
-    // Launch daemon
-    await launchDaemon();
-    // Request addition
-    const keys = await getKeys();
-    const response = await sendMessage({
-        type: DaemonCommand.AddVault,
-        payload: requestPayload
-    }, keys);
-    if (response.status !== DaemonResponseStatus.OK) {
-        throw new Error(`Failed adding vault: ${response.error || "Unknown error"}`);
-    }
-    const payload = response.payload as AddVaultResponse;
-    console.log(payload.sourceID);
-}
+

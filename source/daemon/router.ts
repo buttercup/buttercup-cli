@@ -63,7 +63,7 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
             };
         }
         case DaemonCommand.GetVaultContents: {
-            const { id, index } = request.payload as VaultContentsPayload;
+            const { id, index, vault } = request.payload as VaultContentsPayload;
             let facade;
             if (id) {
                 const manager = await getVaultManager();
@@ -72,10 +72,15 @@ async function routeCommand(request: DaemonRequest): Promise<DaemonResponse> {
             } else if (typeof index === "number" && index >= 0) {
                 const source = await getSourceAtIndex(index);
                 facade = await getVaultFacade(source);
-            } else {
+            } else if (typeof vault === "string") {
+                const manager = await getVaultManager();
+                const source = manager.sources.find(src => src.name === vault);
+                facade = await getVaultFacade(source);
+            }
+            if (!facade) {
                 return {
                     status: DaemonResponseStatus.Error,
-                    error: "No target specified for locking"
+                    error: "No target found for vault contents"
                 };
             }
             return {

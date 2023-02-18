@@ -3,10 +3,11 @@ import chalk from "chalk";
 import { EntryPropertyType, Group, GroupFacade, VaultSourceStatus } from "buttercup";
 import { launchDaemon } from "../client/launch";
 import { sendMessage } from "../client/request";
+import { getCurrentVaults } from "../client/adapter";
 import { getKeys } from "../library/keys";
 import { generateIndentation } from "../library/formatting";
 import { TREE_INDENT_SPACES } from "../symbols";
-import { ArgVList, DaemonCommand, DaemonResponseStatus, ListSourcesPayload, ListSourcesResponse, VaultContentsPayload, VaultContentsResponse } from "../types";
+import { ArgVList, DaemonCommand, DaemonResponseStatus, VaultContentsPayload, VaultContentsResponse } from "../types";
 
 export async function list(argv: ArgVList) {
     const [type] = argv._;
@@ -32,10 +33,11 @@ async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
     const {
         id,
         index,
-        output = "tree"
+        output = "tree",
+        vault
     } = argv;
     // Check parameters
-    if (!/^\d+$/.test(`${index}`) && !id) {
+    if (!/^\d+$/.test(`${index}`) && !id && !vault) {
         throw new Error(`Either id or index must be specified`);
     }
     // Launch daemon
@@ -43,7 +45,8 @@ async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
     // Request source content
     const requestPayload: VaultContentsPayload = {
         id,
-        index
+        index,
+        vault
     };
     const keys = await getKeys();
     const response = await sendMessage({
@@ -53,7 +56,7 @@ async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
     if (response.status !== DaemonResponseStatus.OK) {
         throw new Error(`Failed fetching vault contents: ${response.error || "Unknown error"}`);
     }
-    const { vault } = (<VaultContentsResponse> response.payload);
+    const { vault: vaultFacade } = (<VaultContentsResponse> response.payload);
     // Render
     if (output === "tree") {
         (function renderGroups(groups: Array<GroupFacade>, parent = "0", indent = 0) {
@@ -65,7 +68,7 @@ async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
                     : isTrash ? chalk.red(group.title) : group.title;
                 console.log(`${generateIndentation(indent)}${chalk.dim(group.id)} ${title}`);
                 if (renderEntries) {
-                    vault.entries.forEach(entry => {
+                    vaultFacade.entries.forEach(entry => {
                         if (entry.parentID === group.id) {
                             const entryTitle = entry.fields.find(f => f.propertyType === EntryPropertyType.Property && f.property === "title").value;
                             console.log(`${generateIndentation(indent + 1)}${chalk.dim(entry.id)} ${entryTitle}`);
@@ -74,7 +77,7 @@ async function listGroups(argv: ArgVList, renderEntries: boolean = false) {
                 }
                 renderGroups(groups, group.id, indent + TREE_INDENT_SPACES);
             });
-        })(vault.groups);
+        })(vaultFacade.groups);
     } else {
         throw new Error(`Unsupported output type: ${output}`);
     }
@@ -84,22 +87,7 @@ async function listSources(argv: ArgVList) {
     const {
         output = "table"
     } = argv;
-    // Launch daemon
-    await launchDaemon();
-    // Request list of sources
-    const requestPayload: ListSourcesPayload = {
-        locked: true,
-        unlocked: true
-    };
-    const keys = await getKeys();
-    const response = await sendMessage({
-        type: DaemonCommand.ListSources,
-        payload: requestPayload
-    }, keys);
-    if (response.status !== DaemonResponseStatus.OK) {
-        throw new Error(`Failed listing vaults: ${response.error || "Unknown error"}`);
-    }
-    const { sources } = (<ListSourcesResponse> response.payload);
+    const sources = await getCurrentVaults();
     if (output === "table") {
         const table = new Table({
             head: ["#", "Name", "Type", "Status", "ID"].map(str => chalk.white.bold(str))

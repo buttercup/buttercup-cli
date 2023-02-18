@@ -33,6 +33,7 @@ export interface ArgVList extends ArgV {
     id?: UUID;
     index?: number;
     output?: "json" | "table" | "tree";
+    vault?: string;
 }
 
 export interface ArgVLock extends ArgV {
@@ -145,6 +146,7 @@ export type UUID = string;
 export interface VaultContentsPayload {
     id?: UUID;
     index?: number;
+    vault?: string;
 }
 
 export interface VaultContentsResponse {
