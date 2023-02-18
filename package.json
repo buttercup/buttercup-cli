@@ -4,11 +4,15 @@
   "description": "Buttercup command line application",
   "main": "source/index.js",
   "bin": {
-    "bcup": "./source/index.js"
+    "bcup": "./dist/index.js"
   },
   "scripts": {
-    "test": "xo"
+    "build": "tsc && chmod +x ./dist/index.js && echo \"Don't forget to shutdown the daemon before testing!\"",
+    "test": "echo \"None yet...\""
   },
+  "files": [
+    "dist/**/*.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/perry-mitchell/buttercup-cli.git"
@@ -27,49 +31,28 @@
   },
   "homepage": "https://github.com/perry-mitchell/buttercup-cli#readme",
   "dependencies": {
-    "buttercup": "~0.21.0",
-    "buttercup-native-bindings": "~0.2.1",
-    "chalk": "^1.1.3",
-    "copy-paste": "^1.3.0",
-    "expand-home-dir": "0.0.3",
-    "inquirer": "^1.1.2",
-    "minimist": "^1.2.0",
+    "body-parser": "^1.19.0",
+    "boxen": "^4.2.0",
+    "buttercup": "^5.5.0",
+    "chalk": "^4.1.0",
+    "cli-table3": "^0.6.0",
+    "configstore": "^5.0.1",
+    "crypto-random-string": "^3.3.0",
+    "express": "^4.17.1",
+    "inquirer": "^7.3.3",
+    "iocane": "^4.2.0",
+    "minimist": "^1.2.5",
+    "ms": "^2.1.2",
+    "node-fetch": "^2.6.1",
+    "pify": "^5.0.0",
+    "pretty-error": "^2.1.1",
     "pw": "0.0.4",
-    "read": "^1.0.7",
-    "tuck": "0.0.4"
+    "stat-mode": "^1.0.0",
+    "user-home": "^2.0.0"
   },
   "devDependencies": {
-    "xo": "^0.16.0"
-  },
-  "xo": {
-    "esnext": true,
-    "semicolon": true,
-    "space": 4,
-    "envs": [
-      "node"
-    ],
-    "rules": {
-      "babel/arrow-parens": "off",
-      "babel/object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "babel/object-shorthand": "off",
-      "no-multi-spaces": "off",
-      "no-var": "off",
-      "one-var": "off",
-      "prefer-arrow-callback": "off",
-      "prefer-const": "off",
-      "quotes": [
-        "error",
-        "double",
-        {
-          "allowTemplateLiterals": true
-        }
-      ],
-      "space-before-function-paren": "off",
-      "xo/no-abusive-eslint-disable": "off",
-      "xo/no-process-exit": "off"
-    }
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.11.2",
+    "typescript": "^4.0.3"
   }
 }
