@@ -1,8 +1,8 @@
 # Buttercup CLI
 Buttercup password manager for the command line
 
-## DEPRECATED
-The command-line Buttercup utility is deprecated and may be removed or completely refurbished in the near future. Please watch for updates here.
+## WIP
+This is a work in progress and may not be fully functional yet. Please use with caution and do not use in a production environment.
 
 ## Installation
 Install Buttercup CLI globally using `sudo npm install -g buttercup-cli`, and use the `bcup` command in your terminal to run the program.
